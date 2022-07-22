@@ -8,7 +8,7 @@ tracker = EuclideanDistTracker()
 
 # cap = cv2.VideoCapture(0)
 
-cap = WebcamStream(src=1).Start()
+cap = WebcamStream(src=0).Start()
 
 # Object detection from Stable camera - varThreshold: higher = less false positives
 objectDetector = cv2.createBackgroundSubtractorMOG2(history = 50, varThreshold = 20)
@@ -28,19 +28,19 @@ while True:
     for i in contours:
         # Calculate area and remove all contours that are too small
         area = cv2.contourArea(i)
-        if area > 30000 :
+        if area > 35000 and area < 95000:
 #             cv2.drawContours(frame, [i], -1, (0, 255, 0), 2)
             x, y, w, h = cv2.boundingRect(i)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)    # (x,y), (bottom right, top left), color, thickness
             detections.append([x, y, w, h])
-
-    cv2.imshow("frame", frame)
-#     cv2.imshow("mask", mask)
     
     # Track center point of first object detected
-    cx, cy, validCnt = tracker.update(detections)
-    if validCnt > 1:
+    cx, cy, validCnt, hystLatched = tracker.update(detections)
+    if hystLatched:
+        print(cx, cy, validCnt, hystLatched)
         cv2.circle(frame, (cx, cy), 20, (0, 0, 255), -1)
+
+    cv2.imshow("frame", frame)
 
     key = cv2.waitKey(1)
     if key == 27:
