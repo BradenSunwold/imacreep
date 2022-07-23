@@ -5,8 +5,10 @@ class WebcamStream:
     def __init__ (self, src = 0):
         # init video stream and read first frame - Set to low res 720p
         self.stream = cv2.VideoCapture(src)
-        self.stream.set(3, 1280)
-        self.stream.set(4, 720)
+#        self.stream.set(3, 1280)
+#        self.stream.set(4, 720)
+        self.stream.set(3, 640)
+        self.stream.set(4, 480)
         (self.grabbed, self.frame) = self.stream.read()
         
         #init var used to indicate if thread should end

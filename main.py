@@ -28,7 +28,7 @@ while True:
     for i in contours:
         # Calculate area and remove all contours that are too small
         area = cv2.contourArea(i)
-        if area > 35000 and area < 95000:
+        if area > 13000 and area < 35000:
 #             cv2.drawContours(frame, [i], -1, (0, 255, 0), 2)
             x, y, w, h = cv2.boundingRect(i)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)    # (x,y), (bottom right, top left), color, thickness
@@ -38,7 +38,7 @@ while True:
     cx, cy, validCnt, hystLatched = tracker.update(detections)
     if hystLatched:
         print(cx, cy, validCnt, hystLatched)
-        cv2.circle(frame, (cx, cy), 20, (0, 0, 255), -1)
+        cv2.circle(frame, (cx, cy), 10, (0, 0, 255), -1)
 
     cv2.imshow("frame", frame)
 
