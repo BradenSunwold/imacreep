@@ -21,7 +21,7 @@ while True:
     _, mask = cv2.threshold(mask, 254, 255, cv2.THRESH_BINARY)    # Remove all mask that is not completly white
     
     # Grab all contours of moving objects
-    contours,_ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    image, contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
     detections = []
     
