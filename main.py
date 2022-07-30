@@ -11,24 +11,32 @@ tracker = EuclideanDistTracker()
 cap = WebcamStream(src=0).Start()
 
 # Object detection from Stable camera - varThreshold: higher = less false positives
-objectDetector = cv2.createBackgroundSubtractorMOG2(history = 50, varThreshold = 20)
+#createBackgroundSubtractorMOG2(history = 100, varThreshold = 50)
+#createBackgroundSubtractorKNN(history = 100, dist2Threshold = 50)
+objectDetector = cv2.createBackgroundSubtractorKNN(history = 100, dist2Threshold = 100)
 
 while True:
     frame = cap.ReadFrame()
     
     # Create mask of only moving objects in the frame
-    mask = objectDetector.apply(frame)
-    _, mask = cv2.threshold(mask, 254, 255, cv2.THRESH_BINARY)    # Remove all mask that is not completly white
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (21, 21), 0)
+    
+    mask = objectDetector.apply(gray)
+    mask = cv2.threshold(mask, 254, 255, cv2.THRESH_BINARY)[1]    # Remove all mask that is not completly white
+    cv2.imshow("Thresh", mask)
+    mask = cv2.dilate(mask, None, iterations=2)
+    cv2.imshow("Dilate", mask)
     
     # Grab all contours of moving objects
-    image, contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     detections = []
     
     for i in contours:
         # Calculate area and remove all contours that are too small
         area = cv2.contourArea(i)
-        if area > 13000 and area < 35000:
+        if area > 14500 and area < 35000:
 #             cv2.drawContours(frame, [i], -1, (0, 255, 0), 2)
             x, y, w, h = cv2.boundingRect(i)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)    # (x,y), (bottom right, top left), color, thickness
@@ -38,7 +46,7 @@ while True:
     cx, cy, validCnt, hystLatched = tracker.update(detections)
     if hystLatched:
         print(cx, cy, validCnt, hystLatched)
-        cv2.circle(frame, (cx, cy), 10, (0, 0, 255), -1)
+        cv2.circle(frame, (cx, cy), 20, (0, 0, 255), -1)
 
     cv2.imshow("frame", frame)
 
