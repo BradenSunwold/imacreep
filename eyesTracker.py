@@ -111,11 +111,11 @@ light  = pi3d.Light(lightpos=(0, -500, -500), lightamb=(0.2, 0.2, 0.2))
 # Load texture maps --------------------------------------------------------
 
 irisMap   = pi3d.Texture("graphics/iris.jpg"  , mipmap=False,
-              filter=pi3d.constants.GL_LINEAR)
+			  filter=pi3d.constants.GL_LINEAR)
 scleraMap = pi3d.Texture("graphics/sclera.png", mipmap=False,
-              filter=pi3d.constants.GL_LINEAR, blend=True)
+			  filter=pi3d.constants.GL_LINEAR, blend=True)
 lidMap    = pi3d.Texture("graphics/lid.png"   , mipmap=False,
-              filter=pi3d.constants.GL_LINEAR, blend=True)
+			  filter=pi3d.constants.GL_LINEAR, blend=True)
 # U/V map may be useful for debugging texture placement; not normally used
 #uvMap     = pi3d.Texture("graphics/uv.png"    , mipmap=False,
 #              filter=pi3d.constants.GL_LINEAR, blend=False, m_repeat=True)
@@ -147,7 +147,7 @@ irisRegenThreshold = 0.0
 a = points_bounds(pupilMinPts) # Bounds of pupil at min size (in pixels)
 b = points_bounds(pupilMaxPts) # " at max size
 maxDist = max(abs(a[0] - b[0]), abs(a[1] - b[1]), # Determine distance of max
-              abs(a[2] - b[2]), abs(a[3] - b[3])) # variance around each edge
+			  abs(a[2] - b[2]), abs(a[3] - b[3])) # variance around each edge
 # maxDist is motion range in pixels as pupil scales between 0.0 and 1.0.
 # 1.0 / maxDist is one pixel's worth of scale range.  Need 1/4 that...
 if maxDist > 0: irisRegenThreshold = 0.25 / maxDist
@@ -362,43 +362,43 @@ def frame(p, centerPoints):
 				startY       = destY
 				curX         = destX
 				curY         = destY
-                holdDuration = .3 #random.uniform(0.1, 1.1)
+				holdDuration = .3 #random.uniform(0.1, 1.1)
 				startTime    = now
 				isMoving     = False
 		else:
 			if dt >= holdDuration:
-                destX        = centerPoints[0] #random.uniform(-30.0, 30.0)
+				destX        = centerPoints[0] #random.uniform(-30.0, 30.0)
 				n            = math.sqrt(900.0 - destX * destX)
-                destY        = centerPoints[1] #random.uniform(-n, n)
+				destY        = centerPoints[1] #random.uniform(-n, n)
 				moveDuration = 0.175 #random.uniform(0.075, 0.175)
 				startTime    = now
 				isMoving     = True
 
 		# repeat for other eye if CRAZY_EYES
 	if CRAZY_EYES:
-            if isMovingR == True:
-                if dtR <= moveDurationR:
-                    scale        = (now - startTimeR) / moveDurationR
-                    # Ease in/out curve: 3*t^2-2*t^3
-                    scale = 3.0 * scale * scale - 2.0 * scale * scale * scale
-                    curXR        = startXR + (destXR - startXR) * scale
-                    curYR        = startYR + (destYR - startYR) * scale
-                else:
-                    startXR      = destXR
-                    startYR      = destYR
-                    curXR        = destXR
-                    curYR        = destYR
-                    holdDurationR = random.uniform(0.1, 1.1)
-                    startTimeR    = now
-                    isMovingR     = False
-            else:
-                if dtR >= holdDurationR:
-                    destXR        = random.uniform(-30.0, 30.0)
-                    n             = math.sqrt(900.0 - destXR * destXR)
-                    destYR        = random.uniform(-n, n)
-                    moveDurationR = random.uniform(0.075, 0.175)
-                    startTimeR    = now
-                    isMovingR     = True
+			if isMovingR == True:
+				if dtR <= moveDurationR:
+					scale        = (now - startTimeR) / moveDurationR
+					# Ease in/out curve: 3*t^2-2*t^3
+					scale = 3.0 * scale * scale - 2.0 * scale * scale * scale
+					curXR        = startXR + (destXR - startXR) * scale
+					curYR        = startYR + (destYR - startYR) * scale
+				else:
+					startXR      = destXR
+					startYR      = destYR
+					curXR        = destXR
+					curYR        = destYR
+					holdDurationR = random.uniform(0.1, 1.1)
+					startTimeR    = now
+					isMovingR     = False
+			else:
+				if dtR >= holdDurationR:
+					destXR        = random.uniform(-30.0, 30.0)
+					n             = math.sqrt(900.0 - destXR * destXR)
+					destYR        = random.uniform(-n, n)
+					moveDurationR = random.uniform(0.075, 0.175)
+					startTimeR    = now
+					isMovingR     = True
 
 	# Regenerate iris geometry only if size changed by >= 1/4 pixel
 	if abs(p - prevPupilScale) >= irisRegenThreshold:
@@ -431,10 +431,10 @@ def frame(p, centerPoints):
 		if (now - blinkStartTimeLeft) >= blinkDurationLeft:
 			# Yes...increment blink state, unless...
 			if (blinkStateLeft == 1 and # Enblinking and...
-			    ((BLINK_PIN >= 0 and    # blink pin held, or...
-			      GPIO.input(BLINK_PIN) == GPIO.LOW) or
-			    (WINK_L_PIN >= 0 and    # wink pin held
-			      GPIO.input(WINK_L_PIN) == GPIO.LOW))):
+				((BLINK_PIN >= 0 and    # blink pin held, or...
+				  GPIO.input(BLINK_PIN) == GPIO.LOW) or
+				(WINK_L_PIN >= 0 and    # wink pin held
+				  GPIO.input(WINK_L_PIN) == GPIO.LOW))):
 				# Don't advance yet; eye is held closed
 				pass
 			else:
@@ -455,10 +455,10 @@ def frame(p, centerPoints):
 		if (now - blinkStartTimeRight) >= blinkDurationRight:
 			# Yes...increment blink state, unless...
 			if (blinkStateRight == 1 and # Enblinking and...
-			    ((BLINK_PIN >= 0 and    # blink pin held, or...
-			      GPIO.input(BLINK_PIN) == GPIO.LOW) or
-			    (WINK_R_PIN >= 0 and    # wink pin held
-			      GPIO.input(WINK_R_PIN) == GPIO.LOW))):
+				((BLINK_PIN >= 0 and    # blink pin held, or...
+				  GPIO.input(BLINK_PIN) == GPIO.LOW) or
+				(WINK_R_PIN >= 0 and    # wink pin held
+				  GPIO.input(WINK_R_PIN) == GPIO.LOW))):
 				# Don't advance yet; eye is held closed
 				pass
 			else:
@@ -639,7 +639,7 @@ def split( # Recursive simulated pupil response when no analog sensor
 		duration *= 0.5 # Split time & range in half for subdivision,
 		range    *= 0.5 # then pick random center point within range:
 		midValue  = ((startValue + endValue - range) * 0.5 +
-		             random.uniform(0.0, range))
+					 random.uniform(0.0, range))
 		split(startValue, midValue, duration, range)
 		split(midValue  , endValue, duration, range)
 	else: # No more subdivisons, do iris motion...
@@ -654,24 +654,26 @@ def split( # Recursive simulated pupil response when no analog sensor
 
 
 def runEyes(queue):
-    while True:
-        
-        if PUPIL_IN >= 0: # Pupil scale from sensor
-            v = bonnet.channel[PUPIL_IN].value
-            # If you need to calibrate PUPIL_MIN and MAX,
-            # add a 'print v' here for testing.
-            if   v < PUPIL_MIN: v = PUPIL_MIN
-            elif v > PUPIL_MAX: v = PUPIL_MAX
-            # Scale to 0.0 to 1.0:
-            v = (v - PUPIL_MIN) / (PUPIL_MAX - PUPIL_MIN)
-            if PUPIL_SMOOTH > 0:
-                v = ((currentPupilScale * (PUPIL_SMOOTH - 1) + v) /
-                     PUPIL_SMOOTH)
-        frame(v, queue.get())   # Pass in object location data
-        else: # Fractal auto pupil scale
-            v = random.random()
-            split(currentPupilScale, v, 4.0, 1.0, queue.get())
-        currentPupilScale = v
+	global currentPupilScale
+	
+	while True:
+		
+		if PUPIL_IN >= 0: # Pupil scale from sensor
+			v = bonnet.channel[PUPIL_IN].value
+			# If you need to calibrate PUPIL_MIN and MAX,
+			# add a 'print v' here for testing.
+			if   v < PUPIL_MIN: v = PUPIL_MIN
+			elif v > PUPIL_MAX: v = PUPIL_MAX
+			# Scale to 0.0 to 1.0:
+			v = (v - PUPIL_MIN) / (PUPIL_MAX - PUPIL_MIN)
+			if PUPIL_SMOOTH > 0:
+				v = ((currentPupilScale * (PUPIL_SMOOTH - 1) + v) /
+					 PUPIL_SMOOTH)
+			frame(v, queue.get())   # Pass in object location data
+		else: # Fractal auto pupil scale
+			v = random.random()
+			split(currentPupilScale, v, 4.0, 1.0, queue.get())
+		currentPupilScale = v
 
 
 # MAIN LOOP -- runs continuously -------------------------------------------
@@ -690,3 +692,11 @@ producer_process.start()
 # wait for all processes to finish
 producer_process.join()
 consumer_process.join()
+
+
+
+
+
+
+
+
