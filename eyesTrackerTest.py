@@ -89,7 +89,7 @@ class RunEyes(Process):
 
 		# Set up display and initialize pi3d ---------------------------------------
 
-		self.DISPLAY = self.pi3d.Display.create(samples=4)
+		self.DISPLAY = pi3d.Display.create(samples=4)
 		self.DISPLAY.set_background(0, 0, 0, 1) # r,g,b,alpha
 
 		# eyeRadius is the size, in pixels, at which the whole eye will be rendered
@@ -111,19 +111,19 @@ class RunEyes(Process):
 		# also this allows eyelids to be handled somewhat easily as 2D planes.
 		# Line of sight is down Z axis, allowing conventional X/Y cartesion
 		# coords for 2D positions.
-		self.cam    = self.pi3d.Camera(is_3d=False, at=(0,0,0), eye=(0,0,-1000))
-		self.shader = self.pi3d.Shader("uv_light")
-		self.light  = self.pi3d.Light(lightpos=(0, -500, -500), lightamb=(0.2, 0.2, 0.2))
+		self.cam    = pi3d.Camera(is_3d=False, at=(0,0,0), eye=(0,0,-1000))
+		self.shader = pi3d.Shader("uv_light")
+		self.light  = pi3d.Light(lightpos=(0, -500, -500), lightamb=(0.2, 0.2, 0.2))
 
 
 		# Load texture maps --------------------------------------------------------
 
-		self.irisMap   = self.pi3d.Texture("graphics/iris.jpg"  , mipmap=False,
-					  filter=self.pi3d.constants.GL_LINEAR)
-		self.scleraMap = self.pi3d.Texture("graphics/sclera.png", mipmap=False,
-					  filter=self.pi3d.constants.GL_LINEAR, blend=True)
-		self.lidMap    = self.pi3d.Texture("graphics/lid.png"   , mipmap=False,
-					  filter=self.pi3d.constants.GL_LINEAR, blend=True)
+		self.irisMap   = pi3d.Texture("graphics/iris.jpg"  , mipmap=False,
+					  filter=pi3d.constants.GL_LINEAR)
+		self.scleraMap = pi3d.Texture("graphics/sclera.png", mipmap=False,
+					  filter=pi3d.constants.GL_LINEAR, blend=True)
+		self.lidMap    = pi3d.Texture("graphics/lid.png"   , mipmap=False,
+					  filter=pi3d.constants.GL_LINEAR, blend=True)
 		# U/V map may be useful for debugging texture placement; not normally used
 		#uvMap     = pi3d.Texture("graphics/uv.png"    , mipmap=False,
 		#              filter=pi3d.constants.GL_LINEAR, blend=False, m_repeat=True)
@@ -218,21 +218,21 @@ class RunEyes(Process):
 		# ring of extra polygons that simply disappear on screen. It's not
 		# necessary on VC4, but not harmful either, so we just do it rather
 		# than try to be all clever.
-		self.ca, self.sa = self.pi3d.Utility.from_polar((90 - self.angle1) + self.aRange * 0.0001)
+		self.ca, self.sa = pi3d.Utility.from_polar((90 - self.angle1) + self.aRange * 0.0001)
 		self.pts.append((self.ca * self.eyeRadius, sa * self.eyeRadius))
 
 		for i in range(24):
-			self.ca, self.sa = self.pi3d.Utility.from_polar((90 - self.angle1) - self.aRange * i / 23)
+			self.ca, self.sa = pi3d.Utility.from_polar((90 - self.angle1) - self.aRange * i / 23)
 			self.pts.append((self.ca * self.eyeRadius, sa * self.eyeRadius))
 
 		# Scleras are generated independently (object isn't re-used) so each
 		# may have a different image map (heterochromia, corneal scar, or the
 		# same image map can be offset on one so the repetition isn't obvious).
-		self.leftEye = self.pi3d.Lathe(path=self.pts, sides=64)
+		self.leftEye = pi3d.Lathe(path=self.pts, sides=64)
 		self.leftEye.set_textures([self.scleraMap])
 		self.leftEye.set_shader(self.shader)
 		re_axis(self.leftEye, 0)
-		self.rightEye = self.pi3d.Lathe(path=self.pts, sides=64)
+		self.rightEye = pi3d.Lathe(path=self.pts, sides=64)
 		self.rightEye.set_textures([self.scleraMap])
 		self.rightEye.set_shader(self.shader)
 		re_axis(self.rightEye, 0.5) # Image map offset = 180 degree rotation
@@ -240,7 +240,7 @@ class RunEyes(Process):
 
 		# Init global stuff --------------------------------------------------------
 
-		self.mykeys = self.pi3d.Keyboard() # For capturing key presses
+		self.mykeys = pi3d.Keyboard() # For capturing key presses
 
 		self.startX       = 0.0 #random.uniform(-30.0, 30.0)
 		self.n            = math.sqrt(900.0 - self.startX * self.startX)
