@@ -305,7 +305,7 @@ trackingPos = 0.3
 trackingPosR = 0.3
 
 # Generate one frame of imagery
-def frame(p, centerPoints):
+def frame(p):
 
 	global startX, startY, destX, destY, curX, curY
 	global startXR, startYR, destXR, destYR, curXR, curYR
@@ -367,9 +367,9 @@ def frame(p, centerPoints):
 				isMoving     = False
 		else:
 			if dt >= holdDuration:
-				destX        = centerPoints[0] #random.uniform(-30.0, 30.0)
+				destX        = random.uniform(-30.0, 30.0)
 				n            = math.sqrt(900.0 - destX * destX)
-				destY        = centerPoints[1] #random.uniform(-n, n)
+				destY        = random.uniform(-n, n)
 				moveDuration = 0.175 #random.uniform(0.075, 0.175)
 				startTime    = now
 				isMoving     = True
@@ -632,16 +632,15 @@ def split( # Recursive simulated pupil response when no analog sensor
   startValue, # Pupil scale starting value (0.0 to 1.0)
   endValue,   # Pupil scale ending value (")
   duration,   # Start-to-end time, floating-point seconds
-  range,
-  centerPoints):     # +/- random pupil scale at midpoint
+  range):     # +/- random pupil scale at midpoint
 	startTime = time.time()
 	if range >= 0.125: # Limit subdvision count, because recursion
 		duration *= 0.5 # Split time & range in half for subdivision,
 		range    *= 0.5 # then pick random center point within range:
 		midValue  = ((startValue + endValue - range) * 0.5 +
 					 random.uniform(0.0, range))
-		split(startValue, midValue, duration, range, centerPoints)
-		split(midValue  , endValue, duration, range, centerPoints)
+		split(startValue, midValue, duration, range)
+		split(midValue  , endValue, duration, range)
 	else: # No more subdivisons, do iris motion...
 		dv = endValue - startValue
 		while True:
@@ -650,10 +649,10 @@ def split( # Recursive simulated pupil response when no analog sensor
 			v = startValue + dv * dt / duration
 			if   v < PUPIL_MIN: v = PUPIL_MIN
 			elif v > PUPIL_MAX: v = PUPIL_MAX
-			frame(v, centerPoints) # Draw frame w/interim pupil scale value
+			frame(v) # Draw frame w/interim pupil scale value
 
 
-def runEyes(queue):
+def runEyes():
 	global currentPupilScale
 	
 	while True:
@@ -669,29 +668,29 @@ def runEyes(queue):
 			if PUPIL_SMOOTH > 0:
 				v = ((currentPupilScale * (PUPIL_SMOOTH - 1) + v) /
 					 PUPIL_SMOOTH)
-			frame(v, queue.get())   # Pass in object location data
+			frame(v)   # Pass in object location data
 		else: # Fractal auto pupil scale
 			v = random.random()
-			split(currentPupilScale, v, 4.0, 1.0, queue.get())
+			split(currentPupilScale, v, 4.0, 1.0)
 		currentPupilScale = v
-
 
 # MAIN LOOP -- runs continuously -------------------------------------------
 
+runEyes()
 # Create queue to share object position data between processes
-queue = Queue()
+#queue = Queue()
 
 # start the consumer
-consumer_process = Process(target=runEyes, args=(queue,))
-consumer_process.start()
+#consumer_process = Process(target=runEyes)
+#consumer_process.start()
 
 # start the producer
-producer_process = Process(target=ObjectTracker, args=(queue,))
-producer_process.start()
+#producer_process = Process(target=ObjectTracker, args=(queue,))
+#producer_process.start()
 
 # wait for all processes to finish
-producer_process.join()
-consumer_process.join()
+#producer_process.join()
+#consumer_process.join()
 
 
 
