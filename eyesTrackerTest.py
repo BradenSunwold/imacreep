@@ -223,7 +223,7 @@ class RunEyes(Process):
 
 		for i in range(24):
 			self.ca, self.sa = pi3d.Utility.from_polar((90 - self.angle1) - self.aRange * i / 23)
-			self.pts.append((self.ca * self.eyeRadius, sa * self.eyeRadius))
+			self.pts.append((self.ca * self.eyeRadius, self.sa * self.eyeRadius))
 
 		# Scleras are generated independently (object isn't re-used) so each
 		# may have a different image map (heterochromia, corneal scar, or the
@@ -256,7 +256,7 @@ class RunEyes(Process):
 
 		self.startXR      = random.uniform(-30.0, 30.0)
 		self.n            = math.sqrt(900.0 - self.startX * self.startX)
-		self.startYR      = random.uniform(-n, n)
+		self.startYR      = random.uniform(-self.n, self.n)
 		self.destXR       = self.startXR
 		self.destYR       = self.startYR
 		self.curXR        = self.startXR
@@ -272,7 +272,7 @@ class RunEyes(Process):
 		self.rightEye.positionX(-self.eyePosition)
 		self.rightIris.positionX(-self.eyePosition)
 		self.rightUpperEyelid.positionX(-self.eyePosition)
-		self.rightUpperEyelid.positionZ(-veyeRadius - 42)
+		self.rightUpperEyelid.positionZ(-self.veyeRadius - 42)
 		self.rightLowerEyelid.positionX(-self.eyePosition)
 		self.rightLowerEyelid.positionZ(-self.eyeRadius - 42)
 
