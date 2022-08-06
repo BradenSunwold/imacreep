@@ -154,8 +154,8 @@ class RunEyes(Process):
 		self.irisRegenThreshold = 0.0
 		self.a = points_bounds(self.pupilMinPts) # Bounds of pupil at min size (in pixels)
 		self.b = points_bounds(self.pupilMaxPts) # " at max size
-		self.maxDist = max(abs(a[0] - b[0]), abs(a[1] - b[1]), # Determine distance of max
-					  abs(a[2] - b[2]), abs(a[3] - b[3])) # variance around each edge
+		self.maxDist = max(abs(self.a[0] - self.b[0]), abs(self.a[1] - self.b[1]), # Determine distance of max
+					  abs(self.a[2] - self.b[2]), abs(self.a[3] - self.b[3])) # variance around each edge
 		# maxDist is motion range in pixels as pupil scales between 0.0 and 1.0.
 		# 1.0 / maxDist is one pixel's worth of scale range.  Need 1/4 that...
 		if self.maxDist > 0: self.irisRegenThreshold = 0.25 / self.maxDist
@@ -219,7 +219,7 @@ class RunEyes(Process):
 		# necessary on VC4, but not harmful either, so we just do it rather
 		# than try to be all clever.
 		self.ca, self.sa = pi3d.Utility.from_polar((90 - self.angle1) + self.aRange * 0.0001)
-		self.pts.append((self.ca * self.eyeRadius, sa * self.eyeRadius))
+		self.pts.append((self.ca * self.eyeRadius, self.sa * self.eyeRadius))
 
 		for i in range(24):
 			self.ca, self.sa = pi3d.Utility.from_polar((90 - self.angle1) - self.aRange * i / 23)
@@ -516,7 +516,7 @@ class RunEyes(Process):
 
 			if self.blinkStateRight:
 				self.n = (now - self.blinkStartTimeRight) / self.blinkDurationRight
-				if n > 1.0: n = 1.0
+				if self.n > 1.0: self.n = 1.0
 				if self.blinkStateRight == 2: self.n = 1.0 - self.n
 			else:
 				self.n = 0.0
