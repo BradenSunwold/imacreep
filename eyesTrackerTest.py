@@ -22,11 +22,11 @@ from multiprocessing import Process
 from multiprocessing import Queue
 
 # Define custom class for eyes which overrides the multiprocessing class
-class RunEyes(Process):
+class RunEyes:
 	# override the constructor
 	def __init__(self):
 		# execute the base constructor
-		Process.__init__(self)
+		# Process.__init__(self)
 		# Set up display and member variables
 
 		# INPUT CONFIG for eye motion ----------------------------------------------
@@ -313,375 +313,375 @@ class RunEyes(Process):
 		self.trackingPosR = 0.3
 
 
-		# Generate one frame of imagery
-		def frame(p):
+	# Generate one frame of imagery
+	def frame(p):
 
-			# global startX, startY, destX, destY, curX, curY
-			# global startXR, startYR, destXR, destYR, curXR, curYR
-			# global moveDuration, holdDuration, startTime, isMoving
-			# global moveDurationR, holdDurationR, startTimeR, isMovingR
-			# global frames
-			# global leftIris, rightIris
-			# global pupilMinPts, pupilMaxPts, irisPts, irisZ
-			# global leftEye, rightEye
-			# global leftUpperEyelid, leftLowerEyelid, rightUpperEyelid, rightLowerEyelid
-			# global upperLidOpenPts, upperLidClosedPts, lowerLidOpenPts, lowerLidClosedPts
-			# global upperLidEdgePts, lowerLidEdgePts
-			# global prevLeftUpperLidPts, prevLeftLowerLidPts, prevRightUpperLidPts, prevRightLowerLidPts
-			# global leftUpperEyelid, leftLowerEyelid, rightUpperEyelid, rightLowerEyelid
-			# global prevLeftUpperLidWeight, prevLeftLowerLidWeight, prevRightUpperLidWeight, prevRightLowerLidWeight
-			# global prevPupilScale
-			# global irisRegenThreshold, upperLidRegenThreshold, lowerLidRegenThreshold
-			# global luRegen, llRegen, ruRegen, rlRegen
-			# global timeOfLastBlink, timeToNextBlink
-			# global blinkStateLeft, blinkStateRight
-			# global blinkDurationLeft, blinkDurationRight
-			# global blinkStartTimeLeft, blinkStartTimeRight
-			# global trackingPos
-			# global trackingPosR
+		# global startX, startY, destX, destY, curX, curY
+		# global startXR, startYR, destXR, destYR, curXR, curYR
+		# global moveDuration, holdDuration, startTime, isMoving
+		# global moveDurationR, holdDurationR, startTimeR, isMovingR
+		# global frames
+		# global leftIris, rightIris
+		# global pupilMinPts, pupilMaxPts, irisPts, irisZ
+		# global leftEye, rightEye
+		# global leftUpperEyelid, leftLowerEyelid, rightUpperEyelid, rightLowerEyelid
+		# global upperLidOpenPts, upperLidClosedPts, lowerLidOpenPts, lowerLidClosedPts
+		# global upperLidEdgePts, lowerLidEdgePts
+		# global prevLeftUpperLidPts, prevLeftLowerLidPts, prevRightUpperLidPts, prevRightLowerLidPts
+		# global leftUpperEyelid, leftLowerEyelid, rightUpperEyelid, rightLowerEyelid
+		# global prevLeftUpperLidWeight, prevLeftLowerLidWeight, prevRightUpperLidWeight, prevRightLowerLidWeight
+		# global prevPupilScale
+		# global irisRegenThreshold, upperLidRegenThreshold, lowerLidRegenThreshold
+		# global luRegen, llRegen, ruRegen, rlRegen
+		# global timeOfLastBlink, timeToNextBlink
+		# global blinkStateLeft, blinkStateRight
+		# global blinkDurationLeft, blinkDurationRight
+		# global blinkStartTimeLeft, blinkStartTimeRight
+		# global trackingPos
+		# global trackingPosR
 
-			self.DISPLAY.loop_running()
+		self.DISPLAY.loop_running()
 
-			now = time.time()
-			dt  = now - self.startTime
-			dtR  = now - self.startTimeR
+		now = time.time()
+		dt  = now - self.startTime
+		dtR  = now - self.startTimeR
 
-			self.frames += 1
-		#	if(now > beginningTime):
-		#		print(frames/(now-beginningTime))
+		self.frames += 1
+	#	if(now > beginningTime):
+	#		print(frames/(now-beginningTime))
 
-			if self.JOYSTICK_X_IN >= 0 and self.JOYSTICK_Y_IN >= 0:
-				# Eye position from analog inputs
+		if self.JOYSTICK_X_IN >= 0 and self.JOYSTICK_Y_IN >= 0:
+			# Eye position from analog inputs
 
-				self.curX = self.bonnet.channel[self.JOYSTICK_X_IN].value
-				self.curY = self.bonnet.channel[self.JOYSTICK_Y_IN].value
-				self.curX = -30.0 + self.curX * 60.0
-				self.curY = -30.0 + self.curY * 60.0
-			else :
-				# Autonomous eye position
-				if self.isMoving == True:
-					if dt <= self.moveDuration:
-						scale        = (now - self.startTime) / self.moveDuration
+			self.curX = self.bonnet.channel[self.JOYSTICK_X_IN].value
+			self.curY = self.bonnet.channel[self.JOYSTICK_Y_IN].value
+			self.curX = -30.0 + self.curX * 60.0
+			self.curY = -30.0 + self.curY * 60.0
+		else :
+			# Autonomous eye position
+			if self.isMoving == True:
+				if dt <= self.moveDuration:
+					scale        = (now - self.startTime) / self.moveDuration
+					# Ease in/out curve: 3*t^2-2*t^3
+					scale = 3.0 * scale * scale - 2.0 * scale * scale * scale
+					self.curX         = self.startX + (self.destX - self.startX) * scale
+					self.curY         = self.startY + (self.destY - self.startY) * scale
+				else:
+					self.startX       = self.destX
+					self.startY       = self.destY
+					self.curX         = self.destX
+					self.curY         = self.destY
+					self.holdDuration = .3 #random.uniform(0.1, 1.1)
+					self.startTime    = now
+					self.isMoving     = False
+			else:
+				if dt >= self.holdDuration:
+					self.destX        = random.uniform(-30.0, 30.0)
+					self.n            = math.sqrt(900.0 - self.destX * self.destX)
+					self.destY        = random.uniform(-self.n, self.n)
+					self.moveDuration = 0.175 #random.uniform(0.075, 0.175)
+					self.startTime    = now
+					self.isMoving     = True
+
+			# repeat for other eye if CRAZY_EYES
+		if self.CRAZY_EYES:
+				if self.isMovingR == True:
+					if dtR <= self.moveDurationR:
+						scale        = (now - self.startTimeR) / self.moveDurationR
 						# Ease in/out curve: 3*t^2-2*t^3
 						scale = 3.0 * scale * scale - 2.0 * scale * scale * scale
-						self.curX         = self.startX + (self.destX - self.startX) * scale
-						self.curY         = self.startY + (self.destY - self.startY) * scale
+						self.curXR        = self.startXR + (self.destXR - self.startXR) * scale
+						self.curYR        = self.startYR + (self.destYR - self.startYR) * scale
 					else:
-						self.startX       = self.destX
-						self.startY       = self.destY
-						self.curX         = self.destX
-						self.curY         = self.destY
-						self.holdDuration = .3 #random.uniform(0.1, 1.1)
-						self.startTime    = now
-						self.isMoving     = False
+						self.startXR      = self.destXR
+						self.startYR      = self.destYR
+						self.curXR        = self.destXR
+						self.curYR        = self.destYR
+						self.holdDurationR = random.uniform(0.1, 1.1)
+						self.startTimeR    = now
+						self.isMovingR     = False
 				else:
-					if dt >= self.holdDuration:
-						self.destX        = random.uniform(-30.0, 30.0)
-						self.n            = math.sqrt(900.0 - self.destX * self.destX)
-						self.destY        = random.uniform(-self.n, self.n)
-						self.moveDuration = 0.175 #random.uniform(0.075, 0.175)
-						self.startTime    = now
-						self.isMoving     = True
+					if dtR >= self.holdDurationR:
+						self.destXR        = random.uniform(-30.0, 30.0)
+						self.n             = math.sqrt(900.0 - self.destXR * self.destXR)
+						self.destYR        = random.uniform(-self.n, self.n)
+						self.moveDurationR = random.uniform(0.075, 0.175)
+						self.startTimeR    = now
+						self.isMovingR     = True
 
-				# repeat for other eye if CRAZY_EYES
+		# Regenerate iris geometry only if size changed by >= 1/4 pixel
+		if abs(p - self.prevPupilScale) >= self.irisRegenThreshold:
+			# Interpolate points between min and max pupil sizes
+			self.interPupil = points_interp(self.pupilMinPts, self.pupilMaxPts, p)
+			# Generate mesh between interpolated pupil and iris bounds
+			mesh = points_mesh((None, self.interPupil, self.irisPts), 4, -self.irisZ, True)
+			# Assign to both eyes
+			self.leftIris.re_init(pts=mesh)
+			self.rightIris.re_init(pts=mesh)
+			self.prevPupilScale = p
+
+		# Eyelid WIP
+
+		if self.AUTOBLINK and (now - self.timeOfLastBlink) >= self.timeToNextBlink:
+			self.timeOfLastBlink = now
+			self.duration        = random.uniform(0.035, 0.06)
+			if self.blinkStateLeft != 1:
+				self.blinkStateLeft     = 1 # ENBLINK
+				self.blinkStartTimeLeft = now
+				self.blinkDurationLeft  = self.duration
+			if self.blinkStateRight != 1:
+				self.blinkStateRight     = 1 # ENBLINK
+				self.blinkStartTimeRight = now
+				self.blinkDurationRight  = self.duration
+			self.timeToNextBlink = self.duration * 3 + random.uniform(0.0, 4.0)
+
+		if self.blinkStateLeft: # Left eye currently winking/blinking?
+			# Check if blink time has elapsed...
+			if (now - self.blinkStartTimeLeft) >= self.blinkDurationLeft:
+				# Yes...increment blink state, unless...
+				if (self.blinkStateLeft == 1 and # Enblinking and...
+					((self.BLINK_PIN >= 0 and    # blink pin held, or...
+					  GPIO.input(self.BLINK_PIN) == GPIO.LOW) or
+					(self.WINK_L_PIN >= 0 and    # wink pin held
+					  GPIO.input(self.WINK_L_PIN) == GPIO.LOW))):
+					# Don't advance yet; eye is held closed
+					pass
+				else:
+					self.blinkStateLeft += 1
+					if self.blinkStateLeft > 2:
+						self.blinkStateLeft = 0 # NOBLINK
+					else:
+						self.blinkDurationLeft *= 2.0
+						self.blinkStartTimeLeft = now
+		else:
+			if self.WINK_L_PIN >= 0 and GPIO.input(self.WINK_L_PIN) == GPIO.LOW:
+				self.blinkStateLeft     = 1 # ENBLINK
+				self.blinkStartTimeLeft = now
+				self.blinkDurationLeft  = random.uniform(0.035, 0.06)
+
+		if self.blinkStateRight: # Right eye currently winking/blinking?
+			# Check if blink time has elapsed...
+			if (now - self.blinkStartTimeRight) >= self.blinkDurationRight:
+				# Yes...increment blink state, unless...
+				if (self.blinkStateRight == 1 and # Enblinking and...
+					((self.BLINK_PIN >= 0 and    # blink pin held, or...
+					  GPIO.input(self.BLINK_PIN) == GPIO.LOW) or
+					(self.WINK_R_PIN >= 0 and    # wink pin held
+					  GPIO.input(self.WINK_R_PIN) == GPIO.LOW))):
+					# Don't advance yet; eye is held closed
+					pass
+				else:
+					self.blinkStateRight += 1
+					if self.blinkStateRight > 2:
+						self.blinkStateRight = 0 # NOBLINK
+					else:
+						self.blinkDurationRight *= 2.0
+						self.blinkStartTimeRight = now
+		else:
+			if self.WINK_R_PIN >= 0 and GPIO.input(self.WINK_R_PIN) == GPIO.LOW:
+				self.blinkStateRight     = 1 # ENBLINK
+				self.blinkStartTimeRight = now
+				self.blinkDurationRight  = random.uniform(0.035, 0.06)
+
+		if self.BLINK_PIN >= 0 and GPIO.input(self.BLINK_PIN) == GPIO.LOW:
+			self.duration = random.uniform(0.035, 0.06)
+			if self.blinkStateLeft == 0:
+				self.blinkStateLeft     = 1
+				self.blinkStartTimeLeft = now
+				self.blinkDurationLeft  = self.duration
+			if self.blinkStateRight == 0:
+				self.blinkStateRight     = 1
+				self.blinkStartTimeRight = now
+				self.blinkDurationRight  = self.duration
+
+		if self.TRACKING:
+			self.n = 0.4 - self.curY / 60.0
+			if   self.n < 0.0: self.n = 0.0
+			elif self.n > 1.0: self.n = 1.0
+			self.trackingPos = (self.trackingPos * 3.0 + self.n) * 0.25
 			if self.CRAZY_EYES:
-					if self.isMovingR == True:
-						if dtR <= self.moveDurationR:
-							scale        = (now - self.startTimeR) / self.moveDurationR
-							# Ease in/out curve: 3*t^2-2*t^3
-							scale = 3.0 * scale * scale - 2.0 * scale * scale * scale
-							self.curXR        = self.startXR + (self.destXR - self.startXR) * scale
-							self.curYR        = self.startYR + (self.destYR - self.startYR) * scale
-						else:
-							self.startXR      = self.destXR
-							self.startYR      = self.destYR
-							self.curXR        = self.destXR
-							self.curYR        = self.destYR
-							self.holdDurationR = random.uniform(0.1, 1.1)
-							self.startTimeR    = now
-							self.isMovingR     = False
-					else:
-						if dtR >= self.holdDurationR:
-							self.destXR        = random.uniform(-30.0, 30.0)
-							self.n             = math.sqrt(900.0 - self.destXR * self.destXR)
-							self.destYR        = random.uniform(-self.n, self.n)
-							self.moveDurationR = random.uniform(0.075, 0.175)
-							self.startTimeR    = now
-							self.isMovingR     = True
-
-			# Regenerate iris geometry only if size changed by >= 1/4 pixel
-			if abs(p - self.prevPupilScale) >= self.irisRegenThreshold:
-				# Interpolate points between min and max pupil sizes
-				self.interPupil = points_interp(self.pupilMinPts, self.pupilMaxPts, p)
-				# Generate mesh between interpolated pupil and iris bounds
-				mesh = points_mesh((None, self.interPupil, self.irisPts), 4, -self.irisZ, True)
-				# Assign to both eyes
-				self.leftIris.re_init(pts=mesh)
-				self.rightIris.re_init(pts=mesh)
-				self.prevPupilScale = p
-
-			# Eyelid WIP
-
-			if self.AUTOBLINK and (now - self.timeOfLastBlink) >= self.timeToNextBlink:
-				self.timeOfLastBlink = now
-				self.duration        = random.uniform(0.035, 0.06)
-				if self.blinkStateLeft != 1:
-					self.blinkStateLeft     = 1 # ENBLINK
-					self.blinkStartTimeLeft = now
-					self.blinkDurationLeft  = self.duration
-				if self.blinkStateRight != 1:
-					self.blinkStateRight     = 1 # ENBLINK
-					self.blinkStartTimeRight = now
-					self.blinkDurationRight  = self.duration
-				self.timeToNextBlink = self.duration * 3 + random.uniform(0.0, 4.0)
-
-			if self.blinkStateLeft: # Left eye currently winking/blinking?
-				# Check if blink time has elapsed...
-				if (now - self.blinkStartTimeLeft) >= self.blinkDurationLeft:
-					# Yes...increment blink state, unless...
-					if (self.blinkStateLeft == 1 and # Enblinking and...
-						((self.BLINK_PIN >= 0 and    # blink pin held, or...
-						  GPIO.input(self.BLINK_PIN) == GPIO.LOW) or
-						(self.WINK_L_PIN >= 0 and    # wink pin held
-						  GPIO.input(self.WINK_L_PIN) == GPIO.LOW))):
-						# Don't advance yet; eye is held closed
-						pass
-					else:
-						self.blinkStateLeft += 1
-						if self.blinkStateLeft > 2:
-							self.blinkStateLeft = 0 # NOBLINK
-						else:
-							self.blinkDurationLeft *= 2.0
-							self.blinkStartTimeLeft = now
-			else:
-				if self.WINK_L_PIN >= 0 and GPIO.input(self.WINK_L_PIN) == GPIO.LOW:
-					self.blinkStateLeft     = 1 # ENBLINK
-					self.blinkStartTimeLeft = now
-					self.blinkDurationLeft  = random.uniform(0.035, 0.06)
-
-			if self.blinkStateRight: # Right eye currently winking/blinking?
-				# Check if blink time has elapsed...
-				if (now - self.blinkStartTimeRight) >= self.blinkDurationRight:
-					# Yes...increment blink state, unless...
-					if (self.blinkStateRight == 1 and # Enblinking and...
-						((self.BLINK_PIN >= 0 and    # blink pin held, or...
-						  GPIO.input(self.BLINK_PIN) == GPIO.LOW) or
-						(self.WINK_R_PIN >= 0 and    # wink pin held
-						  GPIO.input(self.WINK_R_PIN) == GPIO.LOW))):
-						# Don't advance yet; eye is held closed
-						pass
-					else:
-						self.blinkStateRight += 1
-						if self.blinkStateRight > 2:
-							self.blinkStateRight = 0 # NOBLINK
-						else:
-							self.blinkDurationRight *= 2.0
-							self.blinkStartTimeRight = now
-			else:
-				if self.WINK_R_PIN >= 0 and GPIO.input(self.WINK_R_PIN) == GPIO.LOW:
-					self.blinkStateRight     = 1 # ENBLINK
-					self.blinkStartTimeRight = now
-					self.blinkDurationRight  = random.uniform(0.035, 0.06)
-
-			if self.BLINK_PIN >= 0 and GPIO.input(self.BLINK_PIN) == GPIO.LOW:
-				self.duration = random.uniform(0.035, 0.06)
-				if self.blinkStateLeft == 0:
-					self.blinkStateLeft     = 1
-					self.blinkStartTimeLeft = now
-					self.blinkDurationLeft  = self.duration
-				if self.blinkStateRight == 0:
-					self.blinkStateRight     = 1
-					self.blinkStartTimeRight = now
-					self.blinkDurationRight  = self.duration
-
-			if self.TRACKING:
-				self.n = 0.4 - self.curY / 60.0
+				self.n = 0.4 - self.curYR / 60.0
 				if   self.n < 0.0: self.n = 0.0
 				elif self.n > 1.0: self.n = 1.0
-				self.trackingPos = (self.trackingPos * 3.0 + self.n) * 0.25
-				if self.CRAZY_EYES:
-					self.n = 0.4 - self.curYR / 60.0
-					if   self.n < 0.0: self.n = 0.0
-					elif self.n > 1.0: self.n = 1.0
-					self.trackingPosR = (self.trackingPosR * 3.0 + self.n) * 0.25
+				self.trackingPosR = (self.trackingPosR * 3.0 + self.n) * 0.25
 
-			if self.blinkStateLeft:
-				self.n = (now - self.blinkStartTimeLeft) / self.blinkDurationLeft
-				if self.n > 1.0: n = 1.0
-				if self.blinkStateLeft == 2: self.n = 1.0 - self.n
+		if self.blinkStateLeft:
+			self.n = (now - self.blinkStartTimeLeft) / self.blinkDurationLeft
+			if self.n > 1.0: n = 1.0
+			if self.blinkStateLeft == 2: self.n = 1.0 - self.n
+		else:
+			self.n = 0.0
+		newLeftUpperLidWeight = self.trackingPos + (n * (1.0 - self.trackingPos))
+		newLeftLowerLidWeight = (1.0 - self.trackingPos) + (n * self.trackingPos)
+
+		if self.blinkStateRight:
+			self.n = (now - self.blinkStartTimeRight) / self.blinkDurationRight
+			if self.n > 1.0: self.n = 1.0
+			if self.blinkStateRight == 2: self.n = 1.0 - self.n
+		else:
+			self.n = 0.0
+		if self.CRAZY_EYES:
+			newRightUpperLidWeight = self.trackingPosR + (self.n * (1.0 - self.trackingPosR))
+			newRightLowerLidWeight = (1.0 - self.trackingPosR) + (self.n * self.trackingPosR)
+		else:
+			newRightUpperLidWeight = self.trackingPos + (self.n * (1.0 - self.trackingPos))
+			newRightLowerLidWeight = (1.0 - self.trackingPos) + (self.n * self.trackingPos)
+
+		if (self.luRegen or (abs(newLeftUpperLidWeight - self.prevLeftUpperLidWeight) >=
+		  self.upperLidRegenThreshold)):
+			newLeftUpperLidPts = points_interp(self.upperLidOpenPts,
+			  self.upperLidClosedPts, newLeftUpperLidWeight)
+			if newLeftUpperLidWeight > self.prevLeftUpperLidWeight:
+				self.leftUpperEyelid.re_init(pts=points_mesh(
+				  (self.upperLidEdgePts, self.prevLeftUpperLidPts,
+				  newLeftUpperLidPts), 5, 0, False))
 			else:
-				self.n = 0.0
-			newLeftUpperLidWeight = self.trackingPos + (n * (1.0 - self.trackingPos))
-			newLeftLowerLidWeight = (1.0 - self.trackingPos) + (n * self.trackingPos)
+				self.leftUpperEyelid.re_init(pts=points_mesh(
+				  (self.upperLidEdgePts, newLeftUpperLidPts,
+				  self.prevLeftUpperLidPts), 5, 0, False))
+			self.prevLeftUpperLidPts    = newLeftUpperLidPts
+			self.prevLeftUpperLidWeight = newLeftUpperLidWeight
+			self.luRegen = True
+		else:
+			self.luRegen = False
 
-			if self.blinkStateRight:
-				self.n = (now - self.blinkStartTimeRight) / self.blinkDurationRight
-				if self.n > 1.0: self.n = 1.0
-				if self.blinkStateRight == 2: self.n = 1.0 - self.n
+		if (self.llRegen or (abs(newLeftLowerLidWeight - self.prevLeftLowerLidWeight) >=
+		  self.lowerLidRegenThreshold)):
+			newLeftLowerLidPts = points_interp(self.lowerLidOpenPts,
+			  self.lowerLidClosedPts, newLeftLowerLidWeight)
+			if newLeftLowerLidWeight > self.prevLeftLowerLidWeight:
+				self.leftLowerEyelid.re_init(pts=points_mesh(
+				  (self.lowerLidEdgePts, self.prevLeftLowerLidPts,
+				  newLeftLowerLidPts), 5, 0, False))
 			else:
-				self.n = 0.0
-			if self.CRAZY_EYES:
-				newRightUpperLidWeight = self.trackingPosR + (self.n * (1.0 - self.trackingPosR))
-				newRightLowerLidWeight = (1.0 - self.trackingPosR) + (self.n * self.trackingPosR)
+				self.leftLowerEyelid.re_init(pts=points_mesh(
+				  (self.lowerLidEdgePts, newLeftLowerLidPts,
+				  self.prevLeftLowerLidPts), 5, 0, False))
+			self.prevLeftLowerLidWeight = newLeftLowerLidWeight
+			self.prevLeftLowerLidPts    = newLeftLowerLidPts
+			self.llRegen = True
+		else:
+			self.llRegen = False
+
+		if (self.ruRegen or (abs(newRightUpperLidWeight - self.prevRightUpperLidWeight) >=
+		  self.upperLidRegenThreshold)):
+			newRightUpperLidPts = points_interp(self.upperLidOpenPts,
+			  self.upperLidClosedPts, newRightUpperLidWeight)
+			if newRightUpperLidWeight > self.prevRightUpperLidWeight:
+				self.rightUpperEyelid.re_init(pts=points_mesh(
+				  (self.upperLidEdgePts, self.prevRightUpperLidPts,
+				  newRightUpperLidPts), 5, 0, True))
 			else:
-				newRightUpperLidWeight = self.trackingPos + (self.n * (1.0 - self.trackingPos))
-				newRightLowerLidWeight = (1.0 - self.trackingPos) + (self.n * self.trackingPos)
+				self.rightUpperEyelid.re_init(pts=points_mesh(
+				  (self.upperLidEdgePts, newRightUpperLidPts,
+				  self.prevRightUpperLidPts), 5, 0, True))
+			self.prevRightUpperLidWeight = newRightUpperLidWeight
+			self.prevRightUpperLidPts    = newRightUpperLidPts
+			self.ruRegen = True
+		else:
+			self.ruRegen = False
 
-			if (self.luRegen or (abs(newLeftUpperLidWeight - self.prevLeftUpperLidWeight) >=
-			  self.upperLidRegenThreshold)):
-				newLeftUpperLidPts = points_interp(self.upperLidOpenPts,
-				  self.upperLidClosedPts, newLeftUpperLidWeight)
-				if newLeftUpperLidWeight > self.prevLeftUpperLidWeight:
-					self.leftUpperEyelid.re_init(pts=points_mesh(
-					  (self.upperLidEdgePts, self.prevLeftUpperLidPts,
-					  newLeftUpperLidPts), 5, 0, False))
-				else:
-					self.leftUpperEyelid.re_init(pts=points_mesh(
-					  (self.upperLidEdgePts, newLeftUpperLidPts,
-					  self.prevLeftUpperLidPts), 5, 0, False))
-				self.prevLeftUpperLidPts    = newLeftUpperLidPts
-				self.prevLeftUpperLidWeight = newLeftUpperLidWeight
-				self.luRegen = True
+		if (self.rlRegen or (abs(newRightLowerLidWeight - self.prevRightLowerLidWeight) >=
+		  self.lowerLidRegenThreshold)):
+			newRightLowerLidPts = points_interp(self.lowerLidOpenPts,
+			  self.lowerLidClosedPts, newRightLowerLidWeight)
+			if newRightLowerLidWeight > self.prevRightLowerLidWeight:
+				self.rightLowerEyelid.re_init(pts=points_mesh(
+				  (self.lowerLidEdgePts, self.prevRightLowerLidPts,
+				  newRightLowerLidPts), 5, 0, True))
 			else:
-				self.luRegen = False
+				self.rightLowerEyelid.re_init(pts=points_mesh(
+				  (self.lowerLidEdgePts, newRightLowerLidPts,
+				  self.prevRightLowerLidPts), 5, 0, True))
+			self.prevRightLowerLidWeight = newRightLowerLidWeight
+			self.prevRightLowerLidPts    = newRightLowerLidPts
+			self.rlRegen = True
+		else:
+			self.rlRegen = False
 
-			if (self.llRegen or (abs(newLeftLowerLidWeight - self.prevLeftLowerLidWeight) >=
-			  self.lowerLidRegenThreshold)):
-				newLeftLowerLidPts = points_interp(self.lowerLidOpenPts,
-				  self.lowerLidClosedPts, newLeftLowerLidWeight)
-				if newLeftLowerLidWeight > self.prevLeftLowerLidWeight:
-					self.leftLowerEyelid.re_init(pts=points_mesh(
-					  (self.lowerLidEdgePts, self.prevLeftLowerLidPts,
-					  newLeftLowerLidPts), 5, 0, False))
-				else:
-					self.leftLowerEyelid.re_init(pts=points_mesh(
-					  (self.lowerLidEdgePts, newLeftLowerLidPts,
-					  self.prevLeftLowerLidPts), 5, 0, False))
-				self.prevLeftLowerLidWeight = newLeftLowerLidWeight
-				self.prevLeftLowerLidPts    = newLeftLowerLidPts
-				self.llRegen = True
-			else:
-				self.llRegen = False
+		convergence = 2.0
 
-			if (self.ruRegen or (abs(newRightUpperLidWeight - self.prevRightUpperLidWeight) >=
-			  self.upperLidRegenThreshold)):
-				newRightUpperLidPts = points_interp(self.upperLidOpenPts,
-				  self.upperLidClosedPts, newRightUpperLidWeight)
-				if newRightUpperLidWeight > self.prevRightUpperLidWeight:
-					self.rightUpperEyelid.re_init(pts=points_mesh(
-					  (self.upperLidEdgePts, self.prevRightUpperLidPts,
-					  newRightUpperLidPts), 5, 0, True))
-				else:
-					self.rightUpperEyelid.re_init(pts=points_mesh(
-					  (self.upperLidEdgePts, newRightUpperLidPts,
-					  self.prevRightUpperLidPts), 5, 0, True))
-				self.prevRightUpperLidWeight = newRightUpperLidWeight
-				self.prevRightUpperLidPts    = newRightUpperLidPts
-				self.ruRegen = True
-			else:
-				self.ruRegen = False
+		# Right eye (on screen left)
+		if self.CRAZY_EYES:
+			self.rightIris.rotateToX(self.curYR)
+			self.rightIris.rotateToY(self.curXR - convergence)
+			self.rightIris.draw()
+			self.rightEye.rotateToX(self.curYR)
+			self.rightEye.rotateToY(self.curXR - convergence)
+		else:
+			self.rightIris.rotateToX(self.curY)
+			self.rightIris.rotateToY(self.curX - convergence)
+			self.rightIris.draw()
+			self.rightEye.rotateToX(self.curY)
+			self.rightEye.rotateToY(self.curX - convergence)
+		self.rightEye.draw()
 
-			if (self.rlRegen or (abs(newRightLowerLidWeight - self.prevRightLowerLidWeight) >=
-			  self.lowerLidRegenThreshold)):
-				newRightLowerLidPts = points_interp(self.lowerLidOpenPts,
-				  self.lowerLidClosedPts, newRightLowerLidWeight)
-				if newRightLowerLidWeight > self.prevRightLowerLidWeight:
-					self.rightLowerEyelid.re_init(pts=points_mesh(
-					  (self.lowerLidEdgePts, self.prevRightLowerLidPts,
-					  newRightLowerLidPts), 5, 0, True))
-				else:
-					self.rightLowerEyelid.re_init(pts=points_mesh(
-					  (self.lowerLidEdgePts, newRightLowerLidPts,
-					  self.prevRightLowerLidPts), 5, 0, True))
-				self.prevRightLowerLidWeight = newRightLowerLidWeight
-				self.prevRightLowerLidPts    = newRightLowerLidPts
-				self.rlRegen = True
-			else:
-				self.rlRegen = False
+		# Left eye (on screen right)
 
-			convergence = 2.0
+		self.leftIris.rotateToX(self.curY)
+		self.leftIris.rotateToY(self.curX + convergence)
+		self.leftIris.draw()
+		self.leftEye.rotateToX(self.curY)
+		self.leftEye.rotateToY(self.curX + convergence)
+		self.leftEye.draw()
 
-			# Right eye (on screen left)
-			if self.CRAZY_EYES:
-				self.rightIris.rotateToX(self.curYR)
-				self.rightIris.rotateToY(self.curXR - convergence)
-				self.rightIris.draw()
-				self.rightEye.rotateToX(self.curYR)
-				self.rightEye.rotateToY(self.curXR - convergence)
-			else:
-				self.rightIris.rotateToX(self.curY)
-				self.rightIris.rotateToY(self.curX - convergence)
-				self.rightIris.draw()
-				self.rightEye.rotateToX(self.curY)
-				self.rightEye.rotateToY(self.curX - convergence)
-			self.rightEye.draw()
+		self.leftUpperEyelid.draw()
+		self.leftLowerEyelid.draw()
+		self.rightUpperEyelid.draw()
+		self.rightLowerEyelid.draw()
 
-			# Left eye (on screen right)
-
-			self.leftIris.rotateToX(self.curY)
-			self.leftIris.rotateToY(self.curX + convergence)
-			self.leftIris.draw()
-			self.leftEye.rotateToX(self.curY)
-			self.leftEye.rotateToY(self.curX + convergence)
-			self.leftEye.draw()
-
-			self.leftUpperEyelid.draw()
-			self.leftLowerEyelid.draw()
-			self.rightUpperEyelid.draw()
-			self.rightLowerEyelid.draw()
-
-			k = self.mykeys.read()
-			if k==27:
-				self.mykeys.close()
-				self.DISPLAY.stop()
-				exit(0)
+		k = self.mykeys.read()
+		if k==27:
+			self.mykeys.close()
+			self.DISPLAY.stop()
+			exit(0)
 
 
-		def split( # Recursive simulated pupil response when no analog sensor
-		  startValue, # Pupil scale starting value (0.0 to 1.0)
-		  endValue,   # Pupil scale ending value (")
-		  duration,   # Start-to-end time, floating-point seconds
-		  range):     # +/- random pupil scale at midpoint
-			self.startTime = time.time()
-			if range >= 0.125: # Limit subdvision count, because recursion
-				self.duration *= 0.5 # Split time & range in half for subdivision,
-				range    *= 0.5 # then pick random center point within range:
-				self.midValue  = ((self.startValue + self.endValue - range) * 0.5 +
-							 random.uniform(0.0, range))
-				split(self.startValue, self.midValue, self.duration, range)
-				split(self.midValue  , self.endValue, self.duration, range)
-			else: # No more subdivisons, do iris motion...
-				dv = self.endValue - self.startValue
-				while True:
-					dt = time.time() - self.startTime
-					if dt >= self.duration: break
-					v = self.startValue + dv * dt / self.duration
-					if   v < self.PUPIL_MIN: v = self.PUPIL_MIN
-					elif v > self.PUPIL_MAX: v = self.PUPIL_MAX
-					frame(v) # Draw frame w/interim pupil scale value
-
-
-		def Run():
-			# global currentPupilScale
-			
+	def split( # Recursive simulated pupil response when no analog sensor
+	  startValue, # Pupil scale starting value (0.0 to 1.0)
+	  endValue,   # Pupil scale ending value (")
+	  duration,   # Start-to-end time, floating-point seconds
+	  range):     # +/- random pupil scale at midpoint
+		self.startTime = time.time()
+		if range >= 0.125: # Limit subdvision count, because recursion
+			self.duration *= 0.5 # Split time & range in half for subdivision,
+			range    *= 0.5 # then pick random center point within range:
+			self.midValue  = ((self.startValue + self.endValue - range) * 0.5 +
+						 random.uniform(0.0, range))
+			split(self.startValue, self.midValue, self.duration, range)
+			split(self.midValue  , self.endValue, self.duration, range)
+		else: # No more subdivisons, do iris motion...
+			dv = self.endValue - self.startValue
 			while True:
-				
-				if self.PUPIL_IN >= 0: # Pupil scale from sensor
-					v = self.bonnet.channel[self.PUPIL_IN].value
-					# If you need to calibrate PUPIL_MIN and MAX,
-					# add a 'print v' here for testing.
-					if   v < self.PUPIL_MIN: v = self.PUPIL_MIN
-					elif v > self.PUPIL_MAX: v = self.PUPIL_MAX
-					# Scale to 0.0 to 1.0:
-					v = (v - self.PUPIL_MIN) / (self.PUPIL_MAX - self.PUPIL_MIN)
-					if self.PUPIL_SMOOTH > 0:
-						v = ((self.currentPupilScale * (self.PUPIL_SMOOTH - 1) + v) /
-							 self.PUPIL_SMOOTH)
-					frame(v)   # Pass in object location data
-				else: # Fractal auto pupil scale
-					v = random.random()
-					split(self.currentPupilScale, v, 4.0, 1.0)
-				self.currentPupilScale = v
+				dt = time.time() - self.startTime
+				if dt >= self.duration: break
+				v = self.startValue + dv * dt / self.duration
+				if   v < self.PUPIL_MIN: v = self.PUPIL_MIN
+				elif v > self.PUPIL_MAX: v = self.PUPIL_MAX
+				frame(v) # Draw frame w/interim pupil scale value
+
+
+	def Run():
+		# global currentPupilScale
+		
+		while True:
+			
+			if self.PUPIL_IN >= 0: # Pupil scale from sensor
+				v = self.bonnet.channel[self.PUPIL_IN].value
+				# If you need to calibrate PUPIL_MIN and MAX,
+				# add a 'print v' here for testing.
+				if   v < self.PUPIL_MIN: v = self.PUPIL_MIN
+				elif v > self.PUPIL_MAX: v = self.PUPIL_MAX
+				# Scale to 0.0 to 1.0:
+				v = (v - self.PUPIL_MIN) / (self.PUPIL_MAX - self.PUPIL_MIN)
+				if self.PUPIL_SMOOTH > 0:
+					v = ((self.currentPupilScale * (self.PUPIL_SMOOTH - 1) + v) /
+						 self.PUPIL_SMOOTH)
+				frame(v)   # Pass in object location data
+			else: # Fractal auto pupil scale
+				v = random.random()
+				split(self.currentPupilScale, v, 4.0, 1.0)
+			self.currentPupilScale = v
 
 # MAIN LOOP -- runs continuously -------------------------------------------
 
