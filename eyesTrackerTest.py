@@ -450,16 +450,16 @@ class RunEyes:
 
 		if self.AUTOBLINK and (now - self.timeOfLastBlink) >= self.timeToNextBlink:
 			self.timeOfLastBlink = now
-			self.duration        = random.uniform(0.035, 0.06)
+			duration        = random.uniform(0.035, 0.06)
 			if self.blinkStateLeft != 1:
 				self.blinkStateLeft     = 1 # ENBLINK
 				self.blinkStartTimeLeft = now
-				self.blinkDurationLeft  = self.duration
+				self.blinkDurationLeft  = duration
 			if self.blinkStateRight != 1:
 				self.blinkStateRight     = 1 # ENBLINK
 				self.blinkStartTimeRight = now
-				self.blinkDurationRight  = self.duration
-			self.timeToNextBlink = self.duration * 3 + random.uniform(0.0, 4.0)
+				self.blinkDurationRight  = duration
+			self.timeToNextBlink = duration * 3 + random.uniform(0.0, 4.0)
 
 		if self.blinkStateLeft: # Left eye currently winking/blinking?
 			# Check if blink time has elapsed...
@@ -510,15 +510,15 @@ class RunEyes:
 				self.blinkDurationRight  = random.uniform(0.035, 0.06)
 
 		if self.BLINK_PIN >= 0 and GPIO.input(self.BLINK_PIN) == GPIO.LOW:
-			self.duration = random.uniform(0.035, 0.06)
+			duration = random.uniform(0.035, 0.06)
 			if self.blinkStateLeft == 0:
 				self.blinkStateLeft     = 1
 				self.blinkStartTimeLeft = now
-				self.blinkDurationLeft  = self.duration
+				self.blinkDurationLeft  = duration
 			if self.blinkStateRight == 0:
 				self.blinkStateRight     = 1
 				self.blinkStartTimeRight = now
-				self.blinkDurationRight  = self.duration
+				self.blinkDurationRight  = duration
 
 		if self.TRACKING:
 			self.n = 0.4 - self.curY / 60.0
@@ -671,18 +671,18 @@ class RunEyes:
 	  range):     # +/- random pupil scale at midpoint
 		self.startTime = time.time()
 		if range >= 0.125: # Limit subdvision count, because recursion
-			self.duration *= 0.5 # Split time & range in half for subdivision,
+			duration *= 0.5 # Split time & range in half for subdivision,
 			range    *= 0.5 # then pick random center point within range:
 			self.midValue  = ((self.startValue + self.endValue - range) * 0.5 +
 						 random.uniform(0.0, range))
-			split(self.startValue, self.midValue, self.duration, range)
-			split(self.midValue  , self.endValue, self.duration, range)
+			split(self.startValue, self.midValue, duration, range)
+			split(self.midValue  , self.endValue, duration, range)
 		else: # No more subdivisons, do iris motion...
 			dv = self.endValue - self.startValue
 			while True:
 				dt = time.time() - self.startTime
-				if dt >= self.duration: break
-				v = self.startValue + dv * dt / self.duration
+				if dt >= duration: break
+				v = self.startValue + dv * dt / duration
 				if   v < self.PUPIL_MIN: v = self.PUPIL_MIN
 				elif v > self.PUPIL_MAX: v = self.PUPIL_MAX
 				frame(v) # Draw frame w/interim pupil scale value
