@@ -89,8 +89,12 @@ class RunEyes:
 
 		# Set up display and initialize pi3d ---------------------------------------
 
+		print("Setting up display")
+
 		self.DISPLAY = pi3d.Display.create(samples=4)
 		self.DISPLAY.set_background(0, 0, 0, 1) # r,g,b,alpha
+		
+		print("Display background set")
 
 		# eyeRadius is the size, in pixels, at which the whole eye will be rendered
 		# onscreen.  eyePosition, also pixels, is the offset (left or right) from
@@ -104,7 +108,8 @@ class RunEyes:
 		args, _ = self.parser.parse_known_args()
 		if args.radius:
 			self.eyeRadius = args.radius
-
+		
+		print("Radius argument parsed")
 
 		# A 2D camera is used, mostly to allow for pixel-accurate eye placement,
 		# but also because perspective isn't really helpful or needed here, and
@@ -115,6 +120,7 @@ class RunEyes:
 		self.shader = pi3d.Shader("uv_light")
 		self.light  = pi3d.Light(lightpos=(0, -500, -500), lightamb=(0.2, 0.2, 0.2))
 
+		print("2D Canera bullshit done")
 
 		# Load texture maps --------------------------------------------------------
 
@@ -128,6 +134,8 @@ class RunEyes:
 		#uvMap     = pi3d.Texture("graphics/uv.png"    , mipmap=False,
 		#              filter=pi3d.constants.GL_LINEAR, blend=False, m_repeat=True)
 
+		
+		print("Loaded texture maps")
 
 		# Initialize static geometry -----------------------------------------------
 
@@ -143,6 +151,8 @@ class RunEyes:
 		scale_points(self.lowerLidClosedPts, self.vb, self.eyeRadius)
 		scale_points(self.lowerLidOpenPts  , self.vb, self.eyeRadius)
 		scale_points(self.lowerLidEdgePts  , self.vb, self.eyeRadius)
+		
+		print("Transformed point lists to eye dimentions")
 
 		# Regenerating flexible object geometry (such as eyelids during blinks, or
 		# iris during pupil dilation) is CPU intensive, can noticably slow things
@@ -190,6 +200,8 @@ class RunEyes:
 		self.leftIris.set_textures([self.irisMap])
 		self.leftIris.set_shader(self.shader)
 		self.irisZ = zangle(self.irisPts, self.eyeRadius)[0] * 0.99 # Get iris Z depth, for later
+		
+		print("Generated initial iris meshes")
 
 		# Eyelid meshes are likewise temporary; texture coordinates are
 		# assigned here but geometry is dynamically regenerated in main loop.
@@ -212,6 +224,8 @@ class RunEyes:
 		self.angle2 = zangle(self.scleraBackPts , self.eyeRadius)[1] # " back angle
 		self.aRange = 180 - self.angle1 - self.angle2
 		self.pts    = []
+		
+		print("Generated scalers for each eye")
 
 		# ADD EXTRA INITIAL POINT because of some weird behavior with Pi3D and
 		# VideoCore VI with the Lathed shapes we make later. This adds a *tiny*
@@ -237,10 +251,13 @@ class RunEyes:
 		self.rightEye.set_shader(self.shader)
 		re_axis(self.rightEye, 0.5) # Image map offset = 180 degree rotation
 
-
+		print("Initializing global stuff")
+		
 		# Init global stuff --------------------------------------------------------
 
-		self.mykeys = pi3d.Keyboard() # For capturing key presses
+		self.mykeys = 0 #pi3d.Keyboard() # For capturing key presses
+		
+		print("keyboard input setup")
 
 		self.startX       = 0.0 #random.uniform(-30.0, 30.0)
 		self.n            = math.sqrt(900.0 - self.startX * self.startX)
@@ -253,6 +270,8 @@ class RunEyes:
 		self.holdDuration = 5.0 #random.uniform(0.1, 1.1)
 		self.startTime    = 0.0
 		self.isMoving     = False
+		
+		print("left eye")
 
 		self.startXR      = random.uniform(-30.0, 30.0)
 		self.n            = math.sqrt(900.0 - self.startX * self.startX)
@@ -265,6 +284,8 @@ class RunEyes:
 		self.holdDurationR = random.uniform(0.1, 1.1)
 		self.startTimeR    = 0.0
 		self.isMovingR     = False
+		
+		print("Right eye")
 
 		self.frames        = 0
 		self.beginningTime = time.time()
@@ -272,7 +293,7 @@ class RunEyes:
 		self.rightEye.positionX(-self.eyePosition)
 		self.rightIris.positionX(-self.eyePosition)
 		self.rightUpperEyelid.positionX(-self.eyePosition)
-		self.rightUpperEyelid.positionZ(-self.veyeRadius - 42)
+		self.rightUpperEyelid.positionZ(-self.eyeRadius - 42)
 		self.rightLowerEyelid.positionX(-self.eyePosition)
 		self.rightLowerEyelid.positionZ(-self.eyeRadius - 42)
 
@@ -282,6 +303,8 @@ class RunEyes:
 		self.leftUpperEyelid.positionZ(-self.eyeRadius - 42)
 		self.leftLowerEyelid.positionX(self.eyePosition)
 		self.leftLowerEyelid.positionZ(-self.eyeRadius - 42)
+		
+		print("eye lids")
 
 		self.currentPupilScale       =  0.5
 		self.prevPupilScale          = -1.0 # Force regen on first frame
@@ -293,6 +316,8 @@ class RunEyes:
 		self.prevLeftLowerLidPts  = points_interp(self.lowerLidOpenPts, self.lowerLidClosedPts, 0.5)
 		self.prevRightUpperLidPts = points_interp(self.upperLidOpenPts, self.upperLidClosedPts, 0.5)
 		self.prevRightLowerLidPts = points_interp(self.lowerLidOpenPts, self.lowerLidClosedPts, 0.5)
+		
+		print("pupil scale")
 
 		self.luRegen = True
 		self.llRegen = True
@@ -311,10 +336,11 @@ class RunEyes:
 
 		self.trackingPos = 0.3
 		self.trackingPosR = 0.3
-
+		
+		print("Finished constructor")
 
 	# Generate one frame of imagery
-	def frame(p):
+	def frame(self, p):
 
 		# global startX, startY, destX, destY, curX, curY
 		# global startXR, startYR, destXR, destYR, curXR, curYR
@@ -630,14 +656,15 @@ class RunEyes:
 		self.rightUpperEyelid.draw()
 		self.rightLowerEyelid.draw()
 
-		k = self.mykeys.read()
-		if k==27:
-			self.mykeys.close()
-			self.DISPLAY.stop()
-			exit(0)
+		#k = self.mykeys.read()
+		#if k==27:
+		#	self.mykeys.close()
+		#	self.DISPLAY.stop()
+		#	exit(0)
 
 
 	def split( # Recursive simulated pupil response when no analog sensor
+	  self,
 	  startValue, # Pupil scale starting value (0.0 to 1.0)
 	  endValue,   # Pupil scale ending value (")
 	  duration,   # Start-to-end time, floating-point seconds
@@ -661,7 +688,7 @@ class RunEyes:
 				frame(v) # Draw frame w/interim pupil scale value
 
 
-	def Run():
+	def Run(self):
 		# global currentPupilScale
 		
 		while True:
@@ -677,17 +704,21 @@ class RunEyes:
 				if self.PUPIL_SMOOTH > 0:
 					v = ((self.currentPupilScale * (self.PUPIL_SMOOTH - 1) + v) /
 						 self.PUPIL_SMOOTH)
-				frame(v)   # Pass in object location data
+				self.frame(v)   # Pass in object location data
 			else: # Fractal auto pupil scale
 				v = random.random()
-				split(self.currentPupilScale, v, 4.0, 1.0)
+				self.split(self.currentPupilScale, v, 4.0, 1.0)
 			self.currentPupilScale = v
 
 # MAIN LOOP -- runs continuously -------------------------------------------
 
 Eyes = RunEyes()
 
-RunEyes.Run()
+Eyes.Run()
+
+#i = 0
+#while True:
+#	i += 1
 
 # Create queue to share object position data between processes
 #queue = Queue()
@@ -703,11 +734,4 @@ RunEyes.Run()
 # wait for all processes to finish
 #producer_process.join()
 #consumer_process.join()
-
-
-
-
-
-
-
 
