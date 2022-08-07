@@ -673,16 +673,16 @@ class RunEyes:
 		if range >= 0.125: # Limit subdvision count, because recursion
 			duration *= 0.5 # Split time & range in half for subdivision,
 			range    *= 0.5 # then pick random center point within range:
-			self.midValue  = ((self.startValue + self.endValue - range) * 0.5 +
+			self.midValue  = ((startValue + endValue - range) * 0.5 +
 						 random.uniform(0.0, range))
-			split(self.startValue, self.midValue, duration, range)
-			split(self.midValue  , self.endValue, duration, range)
+			split(startValue, self.midValue, duration, range)
+			split(self.midValue  , endValue, duration, range)
 		else: # No more subdivisons, do iris motion...
-			dv = self.endValue - self.startValue
+			dv = endValue - startValue
 			while True:
 				dt = time.time() - self.startTime
 				if dt >= duration: break
-				v = self.startValue + dv * dt / duration
+				v = startValue + dv * dt / duration
 				if   v < self.PUPIL_MIN: v = self.PUPIL_MIN
 				elif v > self.PUPIL_MAX: v = self.PUPIL_MAX
 				frame(v) # Draw frame w/interim pupil scale value
