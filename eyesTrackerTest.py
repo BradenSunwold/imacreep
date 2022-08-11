@@ -22,7 +22,7 @@ from multiprocessing import Process
 from multiprocessing import Queue
 
 # Define custom class for eyes which overrides the multiprocessing class
-class RunEyes:
+class RunEyes(Process):
 	# override the constructor
 	def __init__(self):
 		# execute the base constructor
@@ -688,7 +688,7 @@ class RunEyes:
 				self.frame(v) # Draw frame w/interim pupil scale value
 
 
-	def Run(self):
+	def run(self):
 		# global currentPupilScale
 		
 		while True:
@@ -714,7 +714,9 @@ class RunEyes:
 
 Eyes = RunEyes()
 
-Eyes.Run()
+Eyes.start()
+
+Eyes.join()
 
 #i = 0
 #while True:
