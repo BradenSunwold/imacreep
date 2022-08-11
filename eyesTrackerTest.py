@@ -259,15 +259,15 @@ class RunEyes:
 		
 		print("keyboard input setup")
 
-		self.startX       = 0.0 #random.uniform(-30.0, 30.0)
+		self.startX       = random.uniform(-30.0, 30.0)
 		self.n            = math.sqrt(900.0 - self.startX * self.startX)
-		self.startY       = 0.0 #random.uniform(-n, n)
+		self.startY       = random.uniform(-self.n, self.n)
 		self.destX        = self.startX
 		self.destY        = self.startY
 		self.curX         = self.startX
 		self.curY         = self.startY
 		self.moveDuration = random.uniform(0.075, 0.175)
-		self.holdDuration = 5.0 #random.uniform(0.1, 1.1)
+		self.holdDuration = random.uniform(0.1, 1.1)
 		self.startTime    = 0.0
 		self.isMoving     = False
 		
@@ -537,8 +537,8 @@ class RunEyes:
 			if self.blinkStateLeft == 2: self.n = 1.0 - self.n
 		else:
 			self.n = 0.0
-		newLeftUpperLidWeight = self.trackingPos + (n * (1.0 - self.trackingPos))
-		newLeftLowerLidWeight = (1.0 - self.trackingPos) + (n * self.trackingPos)
+		newLeftUpperLidWeight = self.trackingPos + (self.n * (1.0 - self.trackingPos))
+		newLeftLowerLidWeight = (1.0 - self.trackingPos) + (self.n * self.trackingPos)
 
 		if self.blinkStateRight:
 			self.n = (now - self.blinkStartTimeRight) / self.blinkDurationRight
@@ -675,8 +675,8 @@ class RunEyes:
 			range    *= 0.5 # then pick random center point within range:
 			self.midValue  = ((startValue + endValue - range) * 0.5 +
 						 random.uniform(0.0, range))
-			split(startValue, self.midValue, duration, range)
-			split(self.midValue  , endValue, duration, range)
+			self.split(startValue, self.midValue, duration, range)
+			self.split(self.midValue  , endValue, duration, range)
 		else: # No more subdivisons, do iris motion...
 			dv = endValue - startValue
 			while True:
@@ -685,7 +685,7 @@ class RunEyes:
 				v = startValue + dv * dt / duration
 				if   v < self.PUPIL_MIN: v = self.PUPIL_MIN
 				elif v > self.PUPIL_MAX: v = self.PUPIL_MAX
-				frame(v) # Draw frame w/interim pupil scale value
+				self.frame(v) # Draw frame w/interim pupil scale value
 
 
 	def Run(self):
