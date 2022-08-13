@@ -4,6 +4,7 @@ from tracker import *
 from webcamStream import *
 from multiprocessing import Process
 from multiprocessing import Queue
+import time
 
 
 def ObjectTracker(queue):
@@ -53,7 +54,11 @@ def ObjectTracker(queue):
             #            print(cx, cy, validCnt, hystLatched)
             cv2.circle(frame, (cx, cy), 20, (0, 0, 255), -1)
             centerPoint = [cx, cy]
+            queueTime = time.time()
             queue.put(centerPoint)
+            print("Enqueueing: " + queueTime)
+            print(centerPoints)
+            print()
         #cv2.imshow("frame", frame)
         
         key = cv2.waitKey(1)

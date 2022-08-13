@@ -15,6 +15,7 @@ from svg.path import Path, parse_path
 from xml.dom.minidom import parse
 from gfxutil import *
 from snake_eyes_bonnet import SnakeEyesBonnet
+import time
 
 # Import object detection / tracking and multi-processig
 from objectDetector import *
@@ -370,7 +371,11 @@ def frame(p, queue):
 				# Check if object tracking queue has a new value to read
 				if not queue.empty():
 					# Update destX and destY
+					queueTime = time.time()
 					centerPoints = queue.get()
+					print("Dequeueing: " + queueTime)
+					print(centerPoints)
+					print()
 					destX = -30 + (centerPoints[0] * .09375)	# .09375 = 60 (eyes screen X res) / 640 (object tracker camera X res)
 					destY = -30 + (centerPoints[1] * .125) 		# .125 = 60 (eyes screen Y res) / 480 (object tracker camera Y res)
 				# destX        = centerPoints[0] #random.uniform(-30.0, 30.0)
