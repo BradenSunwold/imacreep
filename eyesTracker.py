@@ -372,8 +372,9 @@ def frame(p, queue):
 				if not queue.empty():
 					# Update destX and destY
 					queueTime = time.time()
+					queueTimeStr = str(queueTime)
 					centerPoints = queue.get()
-					print("Dequeueing: " + queueTime)
+					print("Dequeueing: " + queueTimeStr)
 					print(centerPoints)
 					print()
 					destX = -30 + (centerPoints[0] * .09375)	# .09375 = 60 (eyes screen X res) / 640 (object tracker camera X res)
