@@ -29,12 +29,12 @@ def ObjectTracker(queue):
         
         mask = objectDetector.apply(gray)
         mask = cv2.threshold(mask, 254, 255, cv2.THRESH_BINARY)[1]    # Remove all mask that is not completly white
-        cv2.imshow("Thresh", mask)
+        #cv2.imshow("Thresh", mask)
         mask = cv2.dilate(mask, None, iterations=2)
-        cv2.imshow("Dilate", mask)
+        #cv2.imshow("Dilate", mask)
         
         # Grab all contours of moving objects
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2:]
         
         detections = []
         
@@ -54,8 +54,7 @@ def ObjectTracker(queue):
             cv2.circle(frame, (cx, cy), 20, (0, 0, 255), -1)
             centerPoint = [cx, cy]
             queue.put(centerPoint)
-        
-        cv2.imshow("frame", frame)
+        #cv2.imshow("frame", frame)
         
         key = cv2.waitKey(1)
         if key == 27:

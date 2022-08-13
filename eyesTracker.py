@@ -680,7 +680,6 @@ def runEyes(queue):
 			v = random.random()
 			split(currentPupilScale, v, 4.0, 1.0, queue)
 		currentPupilScale = v
-		print(newPos)
 
 # def testMulti(queue):
 
