@@ -367,9 +367,14 @@ def frame(p, centerPoints):
 				isMoving     = False
 		else:
 			if dt >= holdDuration:
-				destX        = centerPoints[0] #random.uniform(-30.0, 30.0)
-				n            = math.sqrt(900.0 - destX * destX)
-				destY        = centerPoints[1] #random.uniform(-n, n)
+				# Check if object tracking queue has a new value to read
+				if not queue.empty():
+					# Update destX and destY
+					destX = -30 + (centerPoints[0] * .09375)	# .09375 = 60 (eyes screen X res) / 640 (object tracker camera X res)
+					destY = -30 + (centerPoints[1] * .125) 		# .125 = 60 (eyes screen Y res) / 480 (object tracker camera Y res)
+				# destX        = centerPoints[0] #random.uniform(-30.0, 30.0)
+				# n            = math.sqrt(900.0 - destX * destX)
+				# destY        = centerPoints[1] #random.uniform(-n, n)
 				moveDuration = 0.175 #random.uniform(0.075, 0.175)
 				startTime    = now
 				isMoving     = True
@@ -677,19 +682,19 @@ def runEyes(queue):
 		currentPupilScale = v
 		print(newPos)
 
-def testMulti(queue):
+# def testMulti(queue):
 
-	i = 0
-	while True:
-		i += 1
-		queue.put(i)
+# 	i = 0
+# 	while True:
+# 		i += 1
+# 		queue.put(i)
 
 # MAIN LOOP -- runs continuously -------------------------------------------
 
 # Create queue to share object position data between processes
 queue = Queue()
 
-producer_process = Process(target=testMulti, args=(queue,))
+producer_process = Process(target=ObjectTracker, args=(queue,))
 producer_process.start()
 
 while True:
@@ -697,17 +702,20 @@ while True:
 
 producer_process.join()
 
-# # start the consumer
-# consumer_process = Process(target=runEyes, args=(queue,))
-# consumer_process.start()
 
-# # start the producer
-# producer_process = Process(target=ObjectTracker, args=(queue,))
-# producer_process.start()
 
-# # wait for all processes to finish
-# producer_process.join()
-# consumer_process.join()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
