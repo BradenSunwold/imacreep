@@ -305,7 +305,7 @@ trackingPos = 0.3
 trackingPosR = 0.3
 
 # Generate one frame of imagery
-def frame(p, centerPoints):
+def frame(p, queue):
 
 	global startX, startY, destX, destY, curX, curY
 	global startXR, startYR, destXR, destYR, curXR, curYR
@@ -370,6 +370,7 @@ def frame(p, centerPoints):
 				# Check if object tracking queue has a new value to read
 				if not queue.empty():
 					# Update destX and destY
+					centerPoints = queue.get()
 					destX = -30 + (centerPoints[0] * .09375)	# .09375 = 60 (eyes screen X res) / 640 (object tracker camera X res)
 					destY = -30 + (centerPoints[1] * .125) 		# .125 = 60 (eyes screen Y res) / 480 (object tracker camera Y res)
 				# destX        = centerPoints[0] #random.uniform(-30.0, 30.0)
@@ -638,15 +639,15 @@ def split( # Recursive simulated pupil response when no analog sensor
   endValue,   # Pupil scale ending value (")
   duration,   # Start-to-end time, floating-point seconds
   range,
-  centerPoints):     # +/- random pupil scale at midpoint
+  queue):     # +/- random pupil scale at midpoint
 	startTime = time.time()
 	if range >= 0.125: # Limit subdvision count, because recursion
 		duration *= 0.5 # Split time & range in half for subdivision,
 		range    *= 0.5 # then pick random center point within range:
 		midValue  = ((startValue + endValue - range) * 0.5 +
 					 random.uniform(0.0, range))
-		split(startValue, midValue, duration, range, centerPoints)
-		split(midValue  , endValue, duration, range, centerPoints)
+		split(startValue, midValue, duration, range, queue)
+		split(midValue  , endValue, duration, range, queue)
 	else: # No more subdivisons, do iris motion...
 		dv = endValue - startValue
 		while True:
@@ -655,7 +656,7 @@ def split( # Recursive simulated pupil response when no analog sensor
 			v = startValue + dv * dt / duration
 			if   v < PUPIL_MIN: v = PUPIL_MIN
 			elif v > PUPIL_MAX: v = PUPIL_MAX
-			frame(v, centerPoints) # Draw frame w/interim pupil scale value
+			frame(v, queue) # Draw frame w/interim pupil scale value
 
 
 def runEyes(queue):
@@ -663,7 +664,6 @@ def runEyes(queue):
 	
 	while True:
 		
-		newPos = queue.get()
 		if PUPIL_IN >= 0: # Pupil scale from sensor
 			v = bonnet.channel[PUPIL_IN].value
 			# If you need to calibrate PUPIL_MIN and MAX,
@@ -675,10 +675,10 @@ def runEyes(queue):
 			if PUPIL_SMOOTH > 0:
 				v = ((currentPupilScale * (PUPIL_SMOOTH - 1) + v) /
 					 PUPIL_SMOOTH)
-			frame(v, newPos)   # Pass in object location data
+			frame(v, queue)   # Pass in object location data
 		else: # Fractal auto pupil scale
 			v = random.random()
-			split(currentPupilScale, v, 4.0, 1.0, newPos)
+			split(currentPupilScale, v, 4.0, 1.0, queue)
 		currentPupilScale = v
 		print(newPos)
 
