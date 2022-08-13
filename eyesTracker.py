@@ -658,6 +658,7 @@ def runEyes(queue):
 	
 	while True:
 		
+		newPos = queue.get()
 		if PUPIL_IN >= 0: # Pupil scale from sensor
 			v = bonnet.channel[PUPIL_IN].value
 			# If you need to calibrate PUPIL_MIN and MAX,
@@ -669,29 +670,44 @@ def runEyes(queue):
 			if PUPIL_SMOOTH > 0:
 				v = ((currentPupilScale * (PUPIL_SMOOTH - 1) + v) /
 					 PUPIL_SMOOTH)
-			frame(v, queue.get())   # Pass in object location data
+			frame(v, newPos)   # Pass in object location data
 		else: # Fractal auto pupil scale
 			v = random.random()
-			split(currentPupilScale, v, 4.0, 1.0, queue.get())
+			split(currentPupilScale, v, 4.0, 1.0, newPos)
 		currentPupilScale = v
+		print(newPos)
 
+def testMulti(queue):
+
+	i = 0
+	while True:
+		i += 1
+		queue.put(i)
 
 # MAIN LOOP -- runs continuously -------------------------------------------
 
 # Create queue to share object position data between processes
 queue = Queue()
 
-# start the consumer
-consumer_process = Process(target=runEyes, args=(queue,))
-consumer_process.start()
-
-# start the producer
-producer_process = Process(target=ObjectTracker, args=(queue,))
+producer_process = Process(target=testMulti, args=(queue,))
 producer_process.start()
 
-# wait for all processes to finish
+while True:
+	runEyes(queue)
+
 producer_process.join()
-consumer_process.join()
+
+# # start the consumer
+# consumer_process = Process(target=runEyes, args=(queue,))
+# consumer_process.start()
+
+# # start the producer
+# producer_process = Process(target=ObjectTracker, args=(queue,))
+# producer_process.start()
+
+# # wait for all processes to finish
+# producer_process.join()
+# consumer_process.join()
 
 
 
