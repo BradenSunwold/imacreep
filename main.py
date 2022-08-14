@@ -16,9 +16,9 @@ def ObjectTracker(queue):
     cap = WebcamStream(src=0).Start()
 
     # Object detection from Stable camera - varThreshold: higher = less false positives
-    #createBackgroundSubtractorMOG2(history = 100, varThreshold = 50)
+    objectDetector = cv2.createBackgroundSubtractorMOG2(history = 90, varThreshold = 25)
     #createBackgroundSubtractorKNN(history = 100, dist2Threshold = 50)
-    objectDetector = cv2.createBackgroundSubtractorKNN(history = 100, dist2Threshold = 100)
+    #objectDetector = cv2.createBackgroundSubtractorKNN(history = 100, dist2Threshold = 50)
 
     while True:
         frame = cap.ReadFrame()
@@ -34,14 +34,14 @@ def ObjectTracker(queue):
         cv2.imshow("Dilate", mask)
         
         # Grab all contours of moving objects
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         
         detections = []
         
         for i in contours:
             # Calculate area and remove all contours that are too small
             area = cv2.contourArea(i)
-            if area > 14500 and area < 35000:
+            if area > 2500 and area < 20000:
     #             cv2.drawContours(frame, [i], -1, (0, 255, 0), 2)
                 x, y, w, h = cv2.boundingRect(i)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)    # (x,y), (bottom right, top left), color, thickness

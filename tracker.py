@@ -12,7 +12,7 @@ class EuclideanDistTracker:
 
     def update(self, objects_rect):
         # hysteresis counter init (hystCnt = hystCnt + 2
-        hystCnt = 3
+        hystCnt = 2
         
         # Objects boxes and ids
         objects_bbs_ids = []
@@ -30,7 +30,7 @@ class EuclideanDistTracker:
                 currHystCnt = data[2]
                 
                 latchValidObject = False
-                if dist < 100:
+                if dist < 150:
                     # Check if object has been detected at least X times before latching as valid
                     if currHystCnt > hystCnt:
                         validObject = True
