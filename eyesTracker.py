@@ -363,7 +363,7 @@ def frame(p, queue):
 				startY       = destY
 				curX         = destX
 				curY         = destY
-				holdDuration = .3 #random.uniform(0.1, 1.1)
+				holdDuration = 0 #random.uniform(0.1, 1.1)
 				startTime    = now
 				isMoving     = False
 		else:
@@ -379,10 +379,18 @@ def frame(p, queue):
 					print()
 					destX = -30 + (centerPoints[0] * .09375)	# .09375 = 60 (eyes screen X res) / 640 (object tracker camera X res)
 					destY = -30 + (centerPoints[1] * .125) 		# .125 = 60 (eyes screen Y res) / 480 (object tracker camera Y res)
+					
+					# Exaggerate the x position
+					if destX > 0:
+						if destX <= 28:
+							destX += 2
+					else:
+						if destX >= -28:
+							destX -= 2
 				# destX        = centerPoints[0] #random.uniform(-30.0, 30.0)
 				# n            = math.sqrt(900.0 - destX * destX)
 				# destY        = centerPoints[1] #random.uniform(-n, n)
-				moveDuration = 0.175 #random.uniform(0.075, 0.175)
+				moveDuration = 0.1 #random.uniform(0.075, 0.175)
 				startTime    = now
 				isMoving     = True
 
@@ -687,12 +695,12 @@ def runEyes(queue):
 			split(currentPupilScale, v, 4.0, 1.0, queue)
 		currentPupilScale = v
 
-# def testMulti(queue):
+def testMulti(queue):
 
-# 	i = 0
-# 	while True:
-# 		i += 1
-# 		queue.put(i)
+ 	i = 0
+ 	while True:
+ 		i += 5
+ 		queue.put(i)
 
 # MAIN LOOP -- runs continuously -------------------------------------------
 

@@ -58,7 +58,7 @@ def ObjectTracker(queue):
             queueTimeStr = str(queueTime)
             queue.put(centerPoint)
             print("Enqueueing: " + queueTimeStr)
-            print(centerPoints)
+            print(centerPoint)
             print()
         #cv2.imshow("frame", frame)
         

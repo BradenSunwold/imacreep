@@ -12,7 +12,7 @@ class EuclideanDistTracker:
 
     def update(self, objects_rect):
         # hysteresis counter init (hystCnt = hystCnt + 2
-        hystCnt = 3
+        hystCnt = 2
         
         # Objects boxes and ids
         objects_bbs_ids = []
