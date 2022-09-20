@@ -30,7 +30,7 @@ class EuclideanDistTracker:
                 currHystCnt = data[2]
                 
                 latchValidObject = False
-                if dist < 100:
+                if dist < 150:
                     # Check if object has been detected at least X times before latching as valid
                     if currHystCnt > hystCnt:
                         validObject = True

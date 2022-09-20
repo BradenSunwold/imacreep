@@ -378,15 +378,15 @@ def frame(p, queue):
 					print(centerPoints)
 					print()
 					destX = -30 + (centerPoints[0] * .09375)	# .09375 = 60 (eyes screen X res) / 640 (object tracker camera X res)
-					destY = -30 + (centerPoints[1] * .125) 		# .125 = 60 (eyes screen Y res) / 480 (object tracker camera Y res)
+					destY = -30 + (centerPoints[1] * .0625) 	# .0625 = 30 (eyes screen Y res) / 480 (object tracker camera Y res)
 					
 					# Exaggerate the x position
 					if destX > 0:
-						if destX <= 28:
-							destX += 2
+						if destX <= 27:
+							destX += 3
 					else:
-						if destX >= -28:
-							destX -= 2
+						if destX >= -27:
+							destX -= 3
 				# destX        = centerPoints[0] #random.uniform(-30.0, 30.0)
 				# n            = math.sqrt(900.0 - destX * destX)
 				# destY        = centerPoints[1] #random.uniform(-n, n)
