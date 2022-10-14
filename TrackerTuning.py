@@ -11,14 +11,14 @@ def ObjectTracker(queue):
     # Create tracker object
     tracker = EuclideanDistTracker()
 
-    # cap = cv2.VideoCapture(0)
-
+    # Open multi-threaded web cam stream
     cap = WebcamStream(src=0).Start()
 
-    # Object detection from Stable camera - varThreshold: higher = less false positives
+    # Object detection from Stable camera - varThreshold / dist2Threshold: higher = less false positives
+    # Test both these algorithms to determine which works best in your environment
+
     #createBackgroundSubtractorMOG2(history = 100, varThreshold = 50)
-    #createBackgroundSubtractorKNN(history = 100, dist2Threshold = 50)
-    objectDetector = cv2.createBackgroundSubtractorKNN(history = 100, dist2Threshold = 100)
+    objectDetector = cv2.createBackgroundSubtractorKNN(history = 90, dist2Threshold = 25)
 
     while True:
         frame = cap.ReadFrame()
@@ -41,8 +41,8 @@ def ObjectTracker(queue):
         for i in contours:
             # Calculate area and remove all contours that are too small
             area = cv2.contourArea(i)
-            if area > 14500 and area < 35000:
-    #             cv2.drawContours(frame, [i], -1, (0, 255, 0), 2)
+            # Min and maximum area of a valid detected object
+            if area > 7000 and area < 35000:
                 x, y, w, h = cv2.boundingRect(i)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)    # (x,y), (bottom right, top left), color, thickness
                 detections.append([x, y, w, h])
@@ -50,7 +50,6 @@ def ObjectTracker(queue):
         # Track center point of first object detected
         cx, cy, validCnt, hystLatched = tracker.update(detections)
         if hystLatched:
-#            print(cx, cy, validCnt, hystLatched)
             cv2.circle(frame, (cx, cy), 20, (0, 0, 255), -1)
             centerPoint = [cx, cy]
             queue.put(centerPoint)
@@ -65,14 +64,11 @@ def ObjectTracker(queue):
     cv2.destroyAllWindows()
 
 def Consumer(queue):
-#    print('Consumer: Running', flush=True)
     # consume work
     while True:
         # get a unit of work
         item = queue.get()
         # check for stop
-#        if item is None:
-#            break
         # report
         print(f'>got {item}', flush=True)
     # all done
