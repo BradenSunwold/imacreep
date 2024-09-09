@@ -30,6 +30,7 @@ class EuclideanDistTracker:
                 currHystCnt = data[2]
                 
                 latchValidObject = False
+                # Max distance between two frames for an object to be considered the same object
                 if dist < 150:
                     # Check if object has been detected at least X times before latching as valid
                     if currHystCnt > hystCnt:
@@ -51,10 +52,7 @@ class EuclideanDistTracker:
 
 #        # Clean the dictionary by center points to remove IDS not used anymore
         new_center_points = {}
-#        for obj_bb_id in objects_bbs_ids:
-#            _, _, _, _, object_id = obj_bb_id
-#            center = self.center_points[object_id]
-#            new_center_points[object_id] = center
+
 
         # Loop through center points
         # Check if there are any center_point entries that are not in the new bbs_ids array

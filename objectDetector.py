@@ -12,13 +12,13 @@ def ObjectTracker(queue):
     # Create tracker object
     tracker = EuclideanDistTracker()
     
-    # cap = cv2.VideoCapture(0)
-    
+    # Open multithreaded camera stream
     cap = WebcamStream(src=0).Start()
     
-    # Object detection from Stable camera - varThreshold: higher = less false positives
+    # Object detection from Stable camera - varThreshold / dist2Threshold: higher = less false positives
+    # Test both algorithms to determine which works best in your environment
+
     #createBackgroundSubtractorKNN(history = 100, dist2Threshold = 50)
-    # objectDetector = cv2.createBackgroundSubtractorKNN(history = 100, dist2Threshold = 100)
     objectDetector = cv2.createBackgroundSubtractorMOG2(history = 90, varThreshold = 25)
     
     while True:
@@ -30,9 +30,7 @@ def ObjectTracker(queue):
         
         mask = objectDetector.apply(gray)
         mask = cv2.threshold(mask, 254, 255, cv2.THRESH_BINARY)[1]    # Remove all mask that is not completly white
-        #cv2.imshow("Thresh", mask)
         mask = cv2.dilate(mask, None, iterations=2)
-        #cv2.imshow("Dilate", mask)
         
         # Grab all contours of moving objects
         contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2:]
@@ -42,8 +40,8 @@ def ObjectTracker(queue):
         for i in contours:
             # Calculate area and remove all contours that are too small
             area = cv2.contourArea(i)
-            if area > 2500 and area < 20000:
-                #             cv2.drawContours(frame, [i], -1, (0, 255, 0), 2)
+            # Min and maximum area of valid detected object
+            if area > 7000 and area < 35000:
                 x, y, w, h = cv2.boundingRect(i)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)    # (x,y), (bottom right, top left), color, thickness
                 detections.append([x, y, w, h])
@@ -57,10 +55,9 @@ def ObjectTracker(queue):
             queueTime = time.time()
             queueTimeStr = str(queueTime)
             queue.put(centerPoint)
-            print("Enqueueing: " + queueTimeStr)
-            print(centerPoint)
-            print()
-        #cv2.imshow("frame", frame)
+            # print("Enqueueing: " + queueTimeStr)
+            # print(centerPoint)
+            # print()
         
         key = cv2.waitKey(1)
         if key == 27:

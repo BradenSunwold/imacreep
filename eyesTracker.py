@@ -374,11 +374,11 @@ def frame(p, queue):
 					queueTime = time.time()
 					queueTimeStr = str(queueTime)
 					centerPoints = queue.get()
-					print("Dequeueing: " + queueTimeStr)
-					print(centerPoints)
-					print()
+					# print("Dequeueing: " + queueTimeStr)
+					# print(centerPoints)
+					# print()
 					destX = -30 + (centerPoints[0] * .09375)	# .09375 = 60 (eyes screen X res) / 640 (object tracker camera X res)
-					destY = -30 + (centerPoints[1] * .0625) 	# .0625 = 30 (eyes screen Y res) / 480 (object tracker camera Y res)
+					destY = -30 + (centerPoints[1] * .0625) 	# .0625 = (60 (eyes screen Y res) / 480 (object tracker camera Y res)) / 2
 					
 					# Exaggerate the x position
 					if destX > 0:
