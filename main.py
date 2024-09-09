@@ -4,6 +4,7 @@ from tracker import *
 from webcamStream import *
 from multiprocessing import Process
 from multiprocessing import Queue
+import time
 
 
 def ObjectTracker(queue):
@@ -20,6 +21,8 @@ def ObjectTracker(queue):
     #createBackgroundSubtractorKNN(history = 100, dist2Threshold = 50)
     objectDetector = cv2.createBackgroundSubtractorKNN(history = 100, dist2Threshold = 100)
 
+    framesCount = 0
+    startTime = time.time()
     while True:
         frame = cap.ReadFrame()
         
@@ -29,7 +32,7 @@ def ObjectTracker(queue):
         
         mask = objectDetector.apply(gray)
         mask = cv2.threshold(mask, 254, 255, cv2.THRESH_BINARY)[1]    # Remove all mask that is not completly white
-        cv2.imshow("Thresh", mask)
+        #cv2.imshow("Thresh", mask)
         mask = cv2.dilate(mask, None, iterations=2)
         cv2.imshow("Dilate", mask)
         
@@ -41,7 +44,7 @@ def ObjectTracker(queue):
         for i in contours:
             # Calculate area and remove all contours that are too small
             area = cv2.contourArea(i)
-            if area > 14500 and area < 35000:
+            if area > 7000 and area < 35000:
     #             cv2.drawContours(frame, [i], -1, (0, 255, 0), 2)
                 x, y, w, h = cv2.boundingRect(i)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)    # (x,y), (bottom right, top left), color, thickness
@@ -56,6 +59,13 @@ def ObjectTracker(queue):
             queue.put(centerPoint)
 
         cv2.imshow("frame", frame)
+        
+        framesCount += 1
+
+        print("FRAME RATE: ")
+        print(1 / (time.time() - startTime))
+
+        startTime = time.time()
 
         key = cv2.waitKey(1)
         if key == 27:
@@ -75,6 +85,7 @@ def Consumer(queue):
 #            break
         # report
         print(f'>got {item}', flush=True)
+        
     # all done
     print('Consumer: Done', flush=True)
 
