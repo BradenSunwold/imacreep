@@ -18,11 +18,11 @@ def ObjectTracker(queue):
     cap = WebcamStream(src=0).Start()
     
     # Load in coco class lables that our yolo model was trained on and the weights
-    labelsPath = "/home/bradensunwold/Documents/imacreep/yolo-coco/coco.names"
+    labelsPath = "/home/bradensunwold/Documents/yolo-coco/coco.names"
     LABELS = open(labelsPath).read().strip().split("\n")
     
-    weightsPath = "/home/bradensunwold/Documents/imacreep/yolo-coco/yolov3-tiny.weights"
-    configPath = "/home/bradensunwold/Documents/imacreep/yolo-coco/yolov3-tiny.cfg"
+    weightsPath = "/home/bradensunwold/Documents/yolo-coco/yolov3-tiny.weights"
+    configPath = "/home/bradensunwold/Documents/yolo-coco/yolov3-tiny.cfg"
     
     # Object detection from Stable camera - varThreshold / dist2Threshold: higher = less false positives
     # Test both these algorithms to determine which works best in your environment
