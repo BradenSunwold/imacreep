@@ -11,8 +11,9 @@ class EuclideanDistTracker:
 
 
     def update(self, objects_rect):
-        # hysteresis counter init (hystCnt = hystCnt + 2
-        hystCnt = 2
+        # hysteresis counter init (hystCnt = hystCnt + 2)
+        # Was 2, set to 0 for new face tracking
+        hystCnt = 0
         
         # Objects boxes and ids
         objects_bbs_ids = []
@@ -31,7 +32,8 @@ class EuclideanDistTracker:
                 
                 latchValidObject = False
                 # Max distance between two frames for an object to be considered the same object
-                if dist < 150:
+                # 150 - set to 200 for new face tracking
+                if dist < 200:
                     # Check if object has been detected at least X times before latching as valid
                     if currHystCnt > hystCnt:
                         validObject = True
