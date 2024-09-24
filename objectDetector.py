@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from tracker import *
+from tracker_opt import *
 from webcamStream import *
 from multiprocessing import Process
 from multiprocessing import Queue
@@ -21,6 +21,8 @@ def ObjectTracker(queue):
     #createBackgroundSubtractorKNN(history = 100, dist2Threshold = 50)
     objectDetector = cv2.createBackgroundSubtractorMOG2(history = 90, varThreshold = 25)
     
+    framesCount = 0
+    startTime = time.time()
     while True:
         frame = cap.ReadFrame()
         
@@ -50,14 +52,20 @@ def ObjectTracker(queue):
         cx, cy, validCnt, hystLatched = tracker.update(detections)
         if hystLatched:
             #            print(cx, cy, validCnt, hystLatched)
-            cv2.circle(frame, (cx, cy), 20, (0, 0, 255), -1)
+            #cv2.circle(frame, (cx, cy), 20, (0, 0, 255), -1)
             centerPoint = [cx, cy]
-            queueTime = time.time()
-            queueTimeStr = str(queueTime)
+            # queueTime = time.time()
+            # queueTimeStr = str(queueTime)
             queue.put(centerPoint)
             # print("Enqueueing: " + queueTimeStr)
             # print(centerPoint)
             # print()
+            
+        framesCount += 1
+        print("FRAME RATE: ")
+        print(1 / (time.time() - startTime))
+
+        startTime = time.time()
         
         key = cv2.waitKey(1)
         if key == 27:

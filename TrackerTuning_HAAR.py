@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from tracker import *
+from tracker_opt import *
 from webcamStream import *
 from multiprocessing import Process
 from multiprocessing import Queue
@@ -51,7 +51,7 @@ def ObjectTracker(queue):
         # faces = face_cascade.detectMultiScale(frame, scaleFactor=1.005, minNeighbors=6, minSize=(80, 80), maxSize=(480, 640))
         
         # Use this tuning for faces
-        faces = face_cascade.detectMultiScale(frame, scaleFactor=1.11, minNeighbors=6, maxSize=(480, 640))
+        faces = face_cascade.detectMultiScale(frame, scaleFactor=1.11, minNeighbors=4, maxSize=(480, 640))
         
         # Use this tuning for eyes
         #faces = face_cascade.detectMultiScale(frame, scaleFactor=1.1, minNeighbors=3)

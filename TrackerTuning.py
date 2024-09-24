@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from tracker import *
+from tracker_opt import *
 from webcamStream import *
 from multiprocessing import Process
 from multiprocessing import Queue
@@ -56,13 +56,14 @@ def ObjectTracker(queue):
             cv2.circle(frame, (cx, cy), 20, (0, 0, 255), -1)
             centerPoint = [cx, cy]
             queue.put(centerPoint)
+            print(centerPoint)
 
         cv2.imshow("frame", frame)
         
         framesCount += 1
 
-        print("FRAME RATE: ")
-        print(1 / (time.time() - startTime))
+        # print("FRAME RATE: ")
+        # print(1 / (time.time() - startTime))
 
         startTime = time.time()
 
