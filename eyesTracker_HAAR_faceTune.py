@@ -44,7 +44,7 @@ PUPIL_MAX       = 0.5   # Upper "
 WINK_L_PIN      = board.D22    # GPIO pin for LEFT eye wink button
 BLINK_PIN       = board.D23    # GPIO pin for blink button (BOTH eyes)
 WINK_R_PIN      = board.D24    # GPIO pin for RIGHT eye wink
-AUTOBLINK       = False  # If True, eyes blink autonomously
+AUTOBLINK       = True  # If True, eyes blink autonomously
 CRAZY_EYES      = False # If True, each eye moves in different directions
 
 
@@ -322,6 +322,7 @@ trackingPosR = 0.3
 
 loopCount = 0
 lastTrackingTime = 0
+NoTrackingFlag = True
 
 # Generate one frame of imagery
 def frame(p, queue):
@@ -353,6 +354,7 @@ def frame(p, queue):
  
 	global loopCount
 	global lastTrackingTime
+	global NoTrackingFlag
 
 	DISPLAY.loop_running()
 
@@ -393,6 +395,7 @@ def frame(p, queue):
 				# Check if object tracking queue has a new value to read
 				if not queue.empty():
 					if CRAZY_EYES == True :
+						NoTrackingFlag = False
 						# Reset eye colot and turn off auto-movement since we are tracking
 						irisMap = pi3d.Texture("graphics/iris_green.jpg"  , mipmap=False, filter=pi3d.constants.GL_LINEAR)
 						rightIris.set_textures([irisMap])
@@ -434,15 +437,7 @@ def frame(p, queue):
 					# Check no tracking timeout 
 					if (time.time() - lastTrackingTime) > 4 :
 						# We have not been tracking for more than 3 seconds - move eyes around and turn color back
-						irisMap = pi3d.Texture("graphics/iris.jpg"  , mipmap=False, filter=pi3d.constants.GL_LINEAR)
-						rightIris.set_textures([irisMap])
-						leftIris.set_textures([irisMap])
-      
-						scleraMap = pi3d.Texture("graphics/sclera.png", mipmap=False, filter=pi3d.constants.GL_LINEAR, blend=True)
-						leftEye.set_textures([scleraMap])
-						rightEye.set_textures([scleraMap])
-
-						CRAZY_EYES = True
+						NoTrackingFlag = True
 
 		# repeat for other eye if CRAZY_EYES
 	if CRAZY_EYES:
@@ -511,6 +506,19 @@ def frame(p, queue):
 				blinkStateLeft += 1
 				if blinkStateLeft > 2:
 					blinkStateLeft = 0 # NOBLINK
+					if NoTrackingFlag == True :
+						# Change iris color to red
+						# We have not been tracking for more than 3 seconds - move eyes around and turn color back
+						irisMap = pi3d.Texture("graphics/iris_purple.jpg"  , mipmap=False, filter=pi3d.constants.GL_LINEAR)
+						rightIris.set_textures([irisMap])
+						leftIris.set_textures([irisMap])
+	
+						scleraMap = pi3d.Texture("graphics/sclera.png", mipmap=False, filter=pi3d.constants.GL_LINEAR, blend=True)
+						leftEye.set_textures([scleraMap])
+						rightEye.set_textures([scleraMap])
+						CRAZY_EYES = True
+						NoTrackingFlag = False		# Reset flag
+
 				else:
 					blinkDurationLeft *= 2.0
 					blinkStartTimeLeft = now
