@@ -21,7 +21,7 @@ import time
 import os
 
 # Import object detection / tracking and multi-processig
-from objectDetector import *
+from objectDetector_uart import *
 from multiprocessing import Process
 from multiprocessing import Queue
 

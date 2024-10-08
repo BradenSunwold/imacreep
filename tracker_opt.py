@@ -22,7 +22,7 @@ class EuclideanDistTracker:
         for rect in objects_rect:
             x, y, w, h = rect
             cx = (x + x + w) // 2
-            cy = ((y + y + h) // 2) + int(h * 0.25) # Eyes take in opposite sign as TrackerTuning.py displays 
+            cy = ((y + y + h) // 2) + int(h * 0.25) # Eyes take in opposite sign as TrackerTuning.py displays
 
             # Find out if that object was detected already
             same_object_detected = False
